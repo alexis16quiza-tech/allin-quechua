@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>allin prototipo 1</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Deshabilitar selección de texto */
+        body { user-select: none; }
+        
+        /* Efectos 3D tipo Duolingo */
+        .btn-duo {
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 #e46fde;
+        }
+        .btn-duo:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #d947ec;
+        }
+        .btn-gray {
+            box-shadow: 0 4px 0 hsl(175, 76%, 81%);
+        }
+        .btn-gray:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #4c67c2;
+        }
+        .word-btn, .btn-interactivo {
+            transition: all 0.1s ease;
+        }
+        .btn-interactivo:active {
+            transform: translateY(3px);
+            box-shadow: none !important;
+        }
+        /* Fichas usadas (cuando suben a la respuesta) */
+        .ficha-deshabilitada {
+            opacity: 0.25;
+            cursor: default;
+            pointer-events: none;
+            box-shadow: none !important;
+        }
+        /* Nodos del mapa de niveles (estilo Duolingo) */
+        .nodo-nivel {
+            width: 84px;
+            height: 84px;
+            border-radius: 9999px;
+            border: 5px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .nodo-nivel:active {
+            transform: translateY(6px);
+            box-shadow: none !important;
+        }
+        .nodo-nivel:hover {
+            filter: brightness(1.05);
+        }
+
+        /* --- Nivel 5: Pares con audio (prefijo ap- para evitar conflictos) --- */
+        #pantalla-audio-pares{
+            --ap-bg:#12181f;
+            --ap-card:#1c2530;
+            --ap-card-border:#3a4655;
+            --ap-card-selected:#2a9df4;
+            --ap-card-correct:#3ecf6e;
+            --ap-card-wrong:#e5484d;
+            --ap-muted:#7d8896;
+            --ap-accent:#2fb8ff;
+            --ap-pink:#ff3d81;
+        }
+        .ap-screen{ width:100%; max-width:420px; margin:0 auto; padding:24px 16px 40px; }
+        .ap-topbar{ display:flex; align-items:center; gap:14px; margin-bottom:28px; }
+        .ap-close-btn{ background:none; border:none; color:var(--ap-muted); font-size:26px; cursor:pointer; line-height:1; padding:4px; }
+        .ap-progress-track{ flex:1; height:10px; background:#2a323d; border-radius:999px; overflow:hidden; }
+        .ap-progress-fill{ height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#28d5f0,#2a9df4); transition:width .3s ease; }
+        .ap-hearts{ display:flex; align-items:center; gap:6px; color:var(--ap-pink); font-weight:800; font-size:18px; }
+        .ap-bolt{ width:20px; height:20px; background:var(--ap-pink); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#1c0d14; }
+        .ap-title{ font-size:26px; font-weight:800; margin:0 0 32px; color:#f2f5f8; }
+        .ap-pairs{ display:flex; flex-direction:column; gap:14px; margin-bottom:32px; }
+        .ap-row{ display:flex; gap:12px; }
+        .ap-tile{ flex:1; min-height:64px; border-radius:14px; border:2px solid var(--ap-card-border); background:var(--ap-card); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 16px; transition:border-color .15s ease, background .15s ease, transform .1s ease; user-select:none; -webkit-tap-highlight-color:transparent; }
+        .ap-tile:active{ transform:scale(0.98); }
+        .ap-tile.ap-selected{ border-color:var(--ap-card-selected); }
+        .ap-tile.ap-correct{ border-color:var(--ap-card-correct); background:#173327; }
+        .ap-tile.ap-wrong{ border-color:var(--ap-card-wrong); background:#331a1c; animation:ap-shake .3s; }
+        .ap-tile.ap-matched{ opacity:0.45; cursor:default; }
+        @keyframes ap-shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+        .ap-audio-tile{ justify-content:flex-start; gap:10px; }
+        .ap-play-icon{ flex:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--ap-accent); }
+        .ap-play-icon svg{ width:20px; height:20px; }
+        .ap-waveform{ flex:1; height:22px; display:flex; align-items:center; gap:3px; overflow:hidden; }
+        .ap-waveform span{ width:3px; border-radius:2px; background:var(--ap-accent); opacity:.85; }
+        .ap-word-tile{ font-size:18px; font-weight:700; color:#f2f5f8; }
+        .ap-check-btn{ width:100%; padding:16px; border-radius:14px; border:none; font-weight:800; font-size:15px; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; background:#2c3641; color:#6d7987; transition:background .2s, color .2s; }
+        .ap-check-btn.ap-active{ background:var(--ap-accent); color:#062033; cursor:pointer; }
+        .ap-check-btn.ap-success{ background:var(--ap-card-correct); color:#062033; }
+    </style>
+<link rel="manifest" href="manifest.json">
+</head>
+<body id="body-app" class="bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300">
+
+    <div id="pantalla-mapa" class="flex flex-col flex-grow bg-gradient-to-b from-sky-50 to-white">
+        <header class="p-5 border-b-2 border-gray-100 sticky top-0 bg-white/90 backdrop-blur z-50">
+            <h1 class="text-2xl font-extrabold text-gray-700 text-center">Ruta de aprendizaje</h1>
+            <p class="text-center text-gray-400 text-sm font-medium">Quechua para principiantes</p>
+        </header>
+
+        <main class="flex-grow flex flex-col items-center justify-center px-4 py-12">
+            <div class="relative flex flex-col items-center gap-16 max-w-xs w-full">
+                <!-- Línea punteada guía -->
+                <div class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0 border-l-4 border-dashed border-gray-200 -z-10"></div>
+
+                <!-- Nivel 1: Frases -->
+                <div class="flex flex-col items-center" style="transform: translateX(-56px);">
+                    <button id="nodo-nivel-1" class="nodo-nivel bg-green-400" style="box-shadow: 0 6px 0 #3f9902;">
+                        <i class="fa-solid fa-comments text-3xl text-white"></i>
+                    </button>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">1. Frases</span>
+                </div>
+
+                <!-- Nivel 2: Pares -->
+                <div class="flex flex-col items-center" style="transform: translateX(56px);">
+                    <button id="nodo-nivel-2" class="nodo-nivel bg-sky-400" style="box-shadow: 0 6px 0 #1894ce;">
+                        <i class="fa-solid fa-layer-group text-3xl text-white"></i>
+                    </button>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">2. Pares</span>
+                </div>
+
+                <!-- Nivel 3: Audio simple -->
+                <div class="flex flex-col items-center" style="transform: translateX(-56px);">
+                    <button id="nodo-nivel-3" class="nodo-nivel bg-purple-400" style="box-shadow: 0 6px 0 #7e22ce;">
+                        <i class="fa-solid fa-volume-high text-3xl text-white"></i>
+                    </button>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">3. Audio</span>
+                </div>
+
+                <!-- Nivel 4: Audio avanzado -->
+                <div class="flex flex-col items-center" style="transform: translateX(56px);">
+                    <button id="nodo-nivel-4" class="nodo-nivel bg-orange-400" style="box-shadow: 0 6px 0 #c2410c;">
+                        <i class="fa-solid fa-headphones text-3xl text-white"></i>
+                    </button>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">4. Avanzado</span>
+                </div>
+
+                <!-- Nivel 5: Pares con audio -->
+                <div class="flex flex-col items-center" style="transform: translateX(-56px);">
+                    <button id="nodo-nivel-5" class="nodo-nivel bg-pink-400" style="box-shadow: 0 6px 0 #be185d;">
+                        <i class="fa-solid fa-music text-3xl text-white"></i>
+                    </button>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">5. Pares audio</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <div id="pantalla-frases" class="hidden flex flex-col flex-grow">
+        <header class="border-b-2 border-gray-200 p-4 sticky top-0 bg-white z-50">
+            <div class="max-w-xl mx-auto flex items-center justify-between gap-4">
+                <button onclick="mostrarMapa()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer">✕</button>
+                <div class="w-full bg-gray-200 h-4 rounded-full overflow-hidden">
+                    <div id="progress-bar-frases" class="bg-green-500 h-full w-0 transition-all duration-300 rounded-full"></div>
+                </div>
+                <div class="flex items-center gap-1 text-red-500 font-bold text-lg">
+                    <i class="fa-solid fa-heart"></i>
+                    <span id="lives-count">3</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow flex items-center justify-center p-4">
+            <div class="max-w-md w-full text-center">
+                <h2 class="text-2xl font-bold text-gray-700 mb-2">¿Cómo se traduce esta frase?</h2>
+                
+                <div class="flex items-center justify-center gap-4 my-8 bg-gray-50 p-6 rounded-2xl border-2 border-gray-200 relative">
+                    <div class="bg-green-400 text-white p-4 rounded-full text-3xl shadow-inner">🐹</div>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-3 shadow-sm relative after:content-[''] after:absolute after:top-1/2 after:-left-2 after:-mt-2 after:border-t-8 after:border-t-transparent after:border-r-8 after:border-r-gray-200 after:border-b-8 after:border-b-transparent">
+                        <p id="phrase-to-translate" class="text-xl font-semibold text-gray-700"></p>
+                    </div>
+                </div>
+
+                <div id="options-container" class="grid grid-cols-1 gap-3 mb-8"></div>
+            </div>
+        </main>
+
+        <footer id="footer-bar-frases" class="border-t-2 border-gray-200 p-6 bg-white sticky bottom-0">
+            <div class="max-w-xl mx-auto flex justify-between items-center">
+                <div id="feedback-message" class="hidden flex items-center gap-3">
+                    <div id="feedback-icon" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
+                    <div>
+                        <p id="feedback-title" class="font-bold text-lg"></p>
+                        <p id="feedback-subtitle" class="text-sm"></p>
+                    </div>
+                </div>
+                <div id="spacer" class="flex-grow"></div>
+                <button id="action-btn" onclick="checkAnswer()" class="btn-duo btn-gray bg-gray-200 text-gray-400 font-bold py-3 px-8 rounded-xl uppercase tracking-wider text-sm w-full sm:w-auto disabled:opacity-50" disabled>
+                    Comprobar
+                </button>
+            </div>
+        </footer>
+    </div>
+
+
+    <div id="pantalla-pares" class="hidden flex flex-col flex-grow">
+        <header class="p-4 max-w-xl w-full mx-auto flex items-center gap-4">
+            <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
+            <div class="w-full bg-[#37464f] h-4 rounded-full overflow-hidden">
+                <div id="progress-bar-pares" class="bg-[#58cc02] h-full w-0 transition-all duration-300 rounded-full"></div>
+            </div>
+            <div class="flex items-center gap-1 text-[#ff4b4b] font-bold text-lg">
+                <i class="fa-solid fa-heart"></i>
+                <span id="lives-count-pares">3</span>
+            </div>
+        </header>
+
+        <main class="flex-grow flex flex-col items-center justify-center px-6 max-w-xl w-full mx-auto">
+            <h1 class="text-3xl font-extrabold tracking-wide text-[#f1f7fb] self-start mb-8 w-full">
+                Selecciona los pares
+            </h1>
+            <div id="matrix-container" class="grid grid-cols-2 gap-3 w-full mb-12"></div>
+        </main>
+
+        <footer class="border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex justify-center">
+            <button id="footer-btn-pares" class="w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed" disabled>
+                Comprobar
+            </button>
+        </footer>
+    </div>
+
+
+    <div id="pantalla-audio-simple" class="hidden flex flex-col flex-grow">
+        <header class="p-4 max-w-xl w-full mx-auto flex items-center justify-between gap-4">
+            <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
+            <div class="w-full bg-[#37464f] h-4 rounded-full overflow-hidden">
+                <div id="progress-bar-audio-simple" class="bg-[#58cc02] h-full w-0 transition-all duration-300 rounded-full"></div>
+            </div>
+            <div class="flex items-center gap-1 text-[#ff4b4b] font-bold text-lg">
+                <i class="fa-solid fa-heart"></i>
+                <span id="lives-count-audio-simple">3</span>
+            </div>
+        </header>
+
+        <main class="flex-grow flex flex-col items-center justify-center px-6 max-w-xl w-full mx-auto">
+            <h1 class="text-3xl font-extrabold tracking-wide text-white self-start mb-8">Traduce esta oración</h1>
+            <div class="flex items-center justify-center gap-4 w-full mb-8">
+                <div class="text-6xl p-4 bg-[#1cb0f6]/10 rounded-full border border-[#1cb0f6]/30">🙋‍♀️</div>
+                <button onclick="reproducirAudioSimple()" class="btn-interactivo w-20 h-16 bg-[#1cb0f6] text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-[0_4px_0_#1894ce]">
+                    <i class="fa-solid fa-volume-high text-2xl"></i>
+                </button>
+            </div>
+            <div class="w-full border-t-2 border-b-2 border-[#37464f] py-4 my-6 min-h-[60px] flex items-center justify-center">
+                <div id="zona-respuesta-simple" class="text-2xl font-bold text-white"></div>
+            </div>
+            <div id="opciones-audio-simple" class="flex flex-wrap gap-3 justify-center w-full mt-6"></div>
+        </main>
+
+        <footer id="barra-feedback-simple" class="border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4">
+            <div id="mensaje-feedback-simple" class="hidden flex items-center gap-3">
+                <div id="icono-feedback-simple" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
+                <div>
+                    <p id="titulo-feedback-simple" class="font-bold text-lg"></p>
+                    <p id="sub-feedback-simple" class="text-sm font-medium"></p>
+                </div>
+            </div>
+            <button id="btn-accion-simple" onclick="comprobarAudioSimple()" class="w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed" disabled>
+                Comprobar
+            </button>
+        </footer>
+    </div>
+
+
+    <div id="pantalla-audio-avanzado" class="hidden flex flex-col flex-grow">
+        <header class="p-4 max-w-xl w-full mx-auto flex items-center justify-between gap-4">
+            <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
+            <div class="w-full bg-[#37464f] h-4 rounded-full overflow-hidden">
+                <div id="progress-bar-audio-avanzado" class="bg-[#58cc02] h-full w-0 transition-all duration-300 rounded-full"></div>
+            </div>
+            <div class="flex items-center gap-1 text-[#ff4b4b] font-bold text-lg">
+                <i class="fa-solid fa-heart"></i>
+                <span id="lives-count-audio-avanzado">3</span>
+            </div>
+        </header>
+
+        <main class="flex-grow flex flex-col items-center justify-center px-6 max-w-xl w-full mx-auto">
+            <h1 class="text-3xl font-extrabold tracking-wide text-white self-start mb-6">Escucha y selecciona las palabras</h1>
+
+            <div class="flex items-center justify-center gap-4 w-full mb-6 mt-2">
+                <div class="text-6xl p-4 bg-[#1cb0f6]/10 rounded-full border border-[#1cb0f6]/30">🙋‍♀️</div>
+                
+                <div class="bg-[#131f24] border-2 border-[#37464f] rounded-2xl flex overflow-hidden shadow-md relative 
+                            after:content-[''] after:absolute after:top-1/2 after:-left-2 after:-mt-2 
+                            after:border-t-8 after:border-t-transparent after:border-r-8 after:border-r-[#37464f] 
+                            after:border-b-8 after:border-b-transparent">
+                    <button onclick="reproducirAudioAvanzado(1.0)" class="btn-interactivo p-4 bg-[#18272f] hover:bg-[#20323c] text-[#1cb0f6] border-r border-[#37464f] font-bold text-xl flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-volume-high text-2xl"></i>
+                    </button>
+                    <button onclick="reproducirAudioAvanzado(0.5)" class="btn-interactivo p-4 bg-[#18272f] hover:bg-[#20323c] text-[#1cb0f6] font-bold text-xl flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-turtle text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-full border-t-2 border-b-2 border-[#37464f] py-4 my-4 min-h-[80px] flex flex-wrap gap-2 items-center justify-center" style="background-image: linear-gradient(to bottom, transparent 38px, #37464f 39px, #37464f 40px, transparent 41px); background-size: 100% 44px;">
+                <div id="zona-respuesta-frase-audio" class="flex flex-wrap gap-2 justify-center w-full"></div>
+            </div>
+
+            <div id="opciones-audio-avanzado" class="flex flex-wrap gap-2 justify-center items-center w-full mt-6 mb-8"></div>
+        </main>
+
+        <footer id="barra-feedback-avanzado" class="border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4">
+            <div id="mensaje-feedback-avanzado" class="hidden flex items-center gap-3">
+                <div id="icono-feedback-avanzado" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
+                <div>
+                    <p id="titulo-feedback-avanzado" class="font-bold text-lg"></p>
+                    <p id="sub-feedback-avanzado" class="text-sm font-medium"></p>
+                </div>
+            </div>
+            <button id="btn-accion-avanzado" onclick="comprobarAudioAvanzado()" class="w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed" disabled>
+                Comprobar
+            </button>
+        </footer>
+    </div>
+
+
+    <div id="pantalla-audio-pares" class="hidden flex flex-col flex-grow">
+        <div class="ap-screen">
+            <div class="ap-topbar">
+                <button class="ap-close-btn" onclick="mostrarMapa()" aria-label="Cerrar">&times;</button>
+                <div class="ap-progress-track"><div id="progress-fill-audio-pares" class="ap-progress-fill"></div></div>
+                <div class="ap-hearts"><span class="ap-bolt">&#9889;</span> <span id="lives-count-audio-pares">3</span></div>
+            </div>
+
+            <h1 class="ap-title">Selecciona los pares</h1>
+
+            <div class="ap-pairs" id="pairs-audio-pares"></div>
+
+            <button class="ap-check-btn" id="check-btn-audio-pares" disabled>Comprobar</button>
+        </div>
+    </div>
+
+
+    <div id="pantalla-final" class="hidden flex-grow flex items-center justify-center p-4 text-center"></div>
+
+
+    <script>
+        const IDIOMA_ORIGEN = "Español"; 
+        const IDIOMA_DESTINO = "quechua"; 
+
+        // Nivel 1: Frases
+        const ejercicios = [
+            { pregunta: "Hola, ¿cómo estás?", opciones: ["allinllachu, imaynallam?", "rimaykullayki", "riqsikuyki"], correcta: "allinllachu, imaynallam?" }
+            ,{ pregunta: "Gracias por tu ayuda.", opciones: ["sulpayki", "sulpayki kachun", "añayki"], correcta: "sulpayki kachun" },
+               { pregunta: "buenos dias ", opciones: ["rimaykullayki", "sulpayki kachun", "añayki"], correcta: "rimaykullayki" }
+                  
+        ];
+
+        // Nivel 2: Pares
+        const diccionario = [
+            { id: 1, lang1: "agua", lang2: "yaku" },
+            { id: 2, lang1: "hola", lang2: "Allinllachu" },
+            { id: 3, lang1: "azúcar", lang2: "miski" },
+            { id: 4, lang1: "adios", lang2: "tupanchikkama"}
+        ];
+
+        // BANCO NIVEL 3: Un solo botón de audio, se elige una palabra única
+        const bancoAudioSimple = [
+    { 
+        audioUrl: "c:\\Users\\User\\Downloads\\allinlla chachaykamuy.ogg", 
+        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
+        correcta: "bienvenido"
+    },
+    { 
+        audioUrl: "c:\\Users\\User\\Downloads\\miski.ogg" , 
+        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
+        correcta: "azúcar"
+    }
+];
+
+
+        // BANCO NIVEL 4: Doble botón (Tortuga), se tocan palabras en orden para construir la frase completa
+        const bancoAudioAvanzado = [
+            { 
+                audioUrl: "audios/frase1.mp3", 
+                opciones: ["milk", "coffee", "or", "please", "sugar", "tea"], 
+                correcta: "coffee or tea please" // Oración que deben formar armando las palabras
+            }
+        ];
+
+        // Controladores globales
+        let vidas = 3;
+        let indexActual = 0;
+        let opcionSeleccionada = null;
+        let estadoRespondido = false;
+
+        let primerBotonSeleccionado = null;
+        let paresEncontrados = 0;
+        const totalPares = diccionario.length;
+
+        let indexSimpleActual = 0;
+        let seleccionSimple = null;
+        let respondidoSimple = false;
+
+        let indexAvanzadoActual = 0;
+        let palabrasSeleccionadasAvanzado = []; 
+        let respondidoAvanzado = false;
+
+        // Progreso: nivel más alto desbloqueado (1 = solo el nivel 1 disponible)
+        let nivelMaximoDesbloqueado = 1;
+
+        const nodosNivelData = [
+            { n: 1, color: "bg-green-400",  sombra: "0 6px 0 #3f9902", icono: "fa-comments" },
+            { n: 2, color: "bg-sky-400",    sombra: "0 6px 0 #1894ce", icono: "fa-layer-group" },
+            { n: 3, color: "bg-purple-400", sombra: "0 6px 0 #7e22ce", icono: "fa-volume-high" },
+            { n: 4, color: "bg-orange-400", sombra: "0 6px 0 #c2410c", icono: "fa-headphones" },
+            { n: 5, color: "bg-pink-400",   sombra: "0 6px 0 #be185d", icono: "fa-music" }
+        ];
+
+        function desbloquearHasta(numero) {
+            if (numero > nivelMaximoDesbloqueado) nivelMaximoDesbloqueado = numero;
+        }
+
+        function actualizarNodosMapa() {
+            nodosNivelData.forEach(item => {
+                const btn = document.getElementById('nodo-nivel-' + item.n);
+                if (!btn) return;
+                const desbloqueado = item.n <= nivelMaximoDesbloqueado;
+                if (desbloqueado) {
+                    btn.className = "nodo-nivel " + item.color;
+                    btn.style.boxShadow = item.sombra;
+                    btn.style.opacity = "1";
+                    btn.style.cursor = "pointer";
+                    btn.onclick = () => abrirNivel(item.n);
+                    btn.innerHTML = `<i class="fa-solid ${item.icono} text-3xl text-white"></i>`;
+                } else {
+                    btn.className = "nodo-nivel bg-gray-300";
+                    btn.style.boxShadow = "0 6px 0 #c7cdd1";
+                    btn.style.opacity = "0.85";
+                    btn.style.cursor = "not-allowed";
+                    btn.onclick = null;
+                    btn.innerHTML = `<i class="fa-solid fa-lock text-2xl text-gray-500"></i>`;
+                }
+            });
+        }
+
+
+        // --- MAPA DE NIVELES ---
+        function ocultarTodasLasPantallas() {
+            document.getElementById('pantalla-mapa').classList.add('hidden');
+            document.getElementById('pantalla-frases').classList.add('hidden');
+            document.getElementById('pantalla-pares').classList.add('hidden');
+            document.getElementById('pantalla-audio-simple').classList.add('hidden');
+            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
+            document.getElementById('pantalla-audio-pares').classList.add('hidden');
+            document.getElementById('pantalla-final').classList.add('hidden');
+        }
+
+        function mostrarMapa() {
+            ocultarTodasLasPantallas();
+            document.getElementById('body-app').className = "bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300";
+            document.getElementById('pantalla-mapa').classList.remove('hidden');
+            actualizarNodosMapa();
+        }
+
+        function abrirNivel(numero) {
+            if (numero > nivelMaximoDesbloqueado) return; // nivel todavía bloqueado
+
+            ocultarTodasLasPantallas();
+            vidas = 3; // vidas frescas cada vez que se entra a un nivel desde el mapa
+
+            if (numero === 1) {
+                document.getElementById('body-app').className = "bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300";
+                document.getElementById('pantalla-frases').classList.remove('hidden');
+                indexActual = 0;
+                iniciarJuegoFrases();
+            } else if (numero === 2) {
+                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
+                document.getElementById('pantalla-pares').classList.remove('hidden');
+                paresEncontrados = 0;
+                primerBotonSeleccionado = null;
+                resetearFooterPares();
+                inicializarMatrizPares();
+            } else if (numero === 3) {
+                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
+                document.getElementById('pantalla-audio-simple').classList.remove('hidden');
+                indexSimpleActual = 0;
+                cargarAudioSimple();
+            } else if (numero === 4) {
+                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
+                document.getElementById('pantalla-audio-avanzado').classList.remove('hidden');
+                indexAvanzadoActual = 0;
+                cargarAudioAvanzado();
+            } else if (numero === 5) {
+                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
+                document.getElementById('pantalla-audio-pares').classList.remove('hidden');
+                inicializarParesAudio();
+            }
+        }
+
+        function resetearFooterPares() {
+            document.getElementById('progress-bar-pares').style.width = "0%";
+            document.getElementById('lives-count-pares').innerText = vidas;
+            const footerBtn = document.getElementById('footer-btn-pares');
+            footerBtn.disabled = true;
+            footerBtn.innerText = "Comprobar";
+            footerBtn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
+            footerBtn.onclick = null;
+        }
+
+
+        // --- SISTEMA JUEGO 1: FRASES ---
+        function iniciarJuegoFrases() {
+            if (indexActual >= ejercicios.length) {
+                desbloquearHasta(2);
+                transicionAPares();
+                return;
+            }
+            estadoRespondido = false;
+            opcionSeleccionada = null;
+            document.getElementById('lives-count').innerText = vidas;
+            actualizarBarraFrases();
+            resetearFooterFrases();
+
+            const ejercicio = ejercicios[indexActual];
+            document.getElementById('phrase-to-translate').innerText = ejercicio.pregunta;
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            
+            ejercicio.opciones.forEach(opcion => {
+                const btn = document.createElement('button');
+                btn.innerText = opcion;
+                btn.className = "w-full text-left py-4 px-6 border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-all text-base focus:outline-none cursor-pointer";
+                btn.onclick = () => seleccionarOpcionFrases(btn, opcion);
+                container.appendChild(btn);
+            });
+        }
+
+        function seleccionarOpcionFrases(boton, valor) {
+            if (estadoRespondido) return;
+            document.querySelectorAll('#options-container button').forEach(b => {
+                b.classList.remove('border-blue-400', 'bg-blue-50', 'text-blue-600');
+                b.classList.add('border-gray-200', 'text-gray-700');
+            });
+            boton.classList.add('border-blue-400', 'bg-blue-50', 'text-blue-600');
+            opcionSeleccionada = valor;
+
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.disabled = false;
+            actionBtn.className = "btn-duo bg-green-500 text-white font-bold py-3 px-8 rounded-xl uppercase tracking-wider text-sm w-full sm:w-auto cursor-pointer";
+            actionBtn.style.boxShadow = "0 4px 0 #3f9902";
+        }
+
+        function checkAnswer() {
+            if (estadoRespondido) {
+                indexActual++;
+                iniciarJuegoFrases();
+                return;
+            }
+            estadoRespondido = true;
+            const ejercicio = ejercicios[indexActual];
+            const footer = document.getElementById('footer-bar-frases');
+            const feedback = document.getElementById('feedback-message');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackSubtitle = document.getElementById('feedback-subtitle');
+            const actionBtn = document.getElementById('action-btn');
+
+            feedback.classList.remove('hidden');
+
+            if (opcionSeleccionada === ejercicio.correcta) {
+                footer.className = "border-t-2 border-green-200 p-6 bg-green-100 sticky bottom-0";
+                feedbackIcon.className = "bg-green-500 text-white text-xl rounded-full w-12 h-12 flex items-center justify-center fa-solid fa-check leading-none";
+                feedbackTitle.innerText = "¡Excelente!";
+                feedbackTitle.className = "font-bold text-lg text-green-700";
+                feedbackSubtitle.className = "hidden";
+            } else {
+                vidas--;
+                document.getElementById('lives-count').innerText = vidas;
+                footer.className = "border-t-2 border-red-200 p-6 bg-red-100 sticky bottom-0";
+                feedbackIcon.className = "bg-red-500 text-white text-xl rounded-full w-12 h-12 flex items-center justify-center fa-solid fa-xmark leading-none";
+                feedbackTitle.innerText = "Solución correcta:";
+                feedbackTitle.className = "font-bold text-lg text-red-700";
+                feedbackSubtitle.innerText = ejercicio.correcta;
+
+                if (vidas <= 0) { setTimeout(() => { mostrarPantallaFinal(false); }, 1000); return; }
+            }
+            actionBtn.innerText = "Continuar";
+        }
+
+        function resetearFooterFrases() {
+            document.getElementById('footer-bar-frases').className = "border-t-2 border-gray-200 p-6 bg-white sticky bottom-0";
+            document.getElementById('feedback-message').classList.add('hidden');
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.disabled = true;
+            actionBtn.innerText = "Comprobar";
+            actionBtn.className = "btn-duo btn-gray bg-gray-200 text-gray-400 font-bold py-3 px-8 rounded-xl uppercase tracking-wider text-sm w-full sm:w-auto";
+            actionBtn.style.boxShadow = "0 4px 0 #e5e5e5";
+        }
+
+        function actualizarBarraFrases() {
+            document.getElementById('progress-bar-frases').style.width = `${(indexActual / ejercicios.length) * 100}%`;
+        }
+
+
+        // --- SISTEMA JUEGO 2: SELECCIONAR PARES ---
+        function transicionAPares() {
+            document.getElementById('pantalla-frases').classList.add('hidden');
+            document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
+            document.getElementById('pantalla-pares').classList.remove('hidden');
+            inicializarMatrizPares();
+        }
+
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function inicializarMatrizPares() {
+            let listaPalabras = [];
+            diccionario.forEach(par => {
+                listaPalabras.push({ texto: par.lang1, parId: par.id });
+                listaPalabras.push({ texto: par.lang2, parId: par.id });
+            });
+            listaPalabras = mezclarArray(listaPalabras);
+
+            const container = document.getElementById('matrix-container');
+            container.innerHTML = "";
+            listaPalabras.forEach(item => {
+                const btn = document.createElement('button');
+                btn.innerText = item.texto;
+                btn.dataset.parId = item.parId; 
+                btn.className = "word-btn w-full py-4 px-4 bg-[#131f24] border-2 border-[#37464f] rounded-2xl font-bold text-lg text-[#e3edf3] cursor-pointer text-center shadow-[0_4px_0_#37464f]";
+                btn.onclick = () => manejarSeleccionPares(btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function manejarSeleccionPares(botonClickeado) {
+            if (botonClickeado.classList.contains('opacity-20') || botonClickeado === primerBotonSeleccionado) return;
+
+            if (!primerBotonSeleccionado) {
+                primerBotonSeleccionado = botonClickeado;
+                destacarBotonPares(botonClickeado, "azul");
+                return;
+            }
+
+            if (primerBotonSeleccionado.dataset.parId === botonClickeado.dataset.parId) {
+                destacarBotonPares(primerBotonSeleccionado, "verde");
+                destacarBotonPares(botonClickeado, "verde");
+                const b1 = primerBotonSeleccionado; const b2 = botonClickeado;
+                setTimeout(() => { marcarComoEmparejado(b1); marcarComoEmparejado(b2); verificarFinJuegoPares(); }, 300);
+            } else {
+                vidas--;
+                document.getElementById('lives-count-pares').innerText = vidas;
+                destacarBotonPares(primerBotonSeleccionado, "rojo");
+                destacarBotonPares(botonClickeado, "rojo");
+                const b1 = primerBotonSeleccionado; const b2 = botonClickeado;
+                setTimeout(() => { resetearBotonParesEstilo(b1); resetearBotonParesEstilo(b2); }, 400);
+                if (vidas <= 0) {
+                    setTimeout(() => { mostrarPantallaFinal(false); }, 1000);
+                }
+            }
+            primerBotonSeleccionado = null;
+        }
+
+        function destacarBotonPares(btn, color) {
+            if (color === "azul") btn.className = "word-btn w-full py-4 px-4 bg-[#183446] border-2 border-[#1cb0f6] rounded-2xl font-bold text-lg text-[#1cb0f6] text-center shadow-[0_4px_0_#1cb0f6]";
+            if (color === "verde") btn.className = "word-btn w-full py-4 px-4 bg-[#223e1d] border-2 border-[#58cc02] rounded-2xl font-bold text-lg text-[#58cc02] text-center shadow-[0_4px_0_#58cc02]";
+            if (color === "rojo") btn.className = "word-btn w-full py-4 px-4 bg-[#411b22] border-2 border-[#ff4b4b] rounded-2xl font-bold text-lg text-[#ff4b4b] text-center shadow-[0_4px_0_#ff4b4b]";
+        }
+
+        function resetearBotonParesEstilo(btn) {
+            btn.className = "word-btn w-full py-4 px-4 bg-[#131f24] border-2 border-[#37464f] rounded-2xl font-bold text-lg text-[#e3edf3] cursor-pointer text-center shadow-[0_4px_0_#37464f]";
+        }
+
+        function marcarComoEmparejado(btn) {
+            btn.className = "word-btn w-full py-4 px-4 bg-[#131f24] border-2 border-[#212f35] rounded-2xl font-bold text-lg text-[#37464f] opacity-20 text-center cursor-default pointer-events-none";
+        }
+
+        function verificarFinJuegoPares() {
+            paresEncontrados++;
+            document.getElementById('progress-bar-pares').style.width = `${(paresEncontrados / totalPares) * 100}%`;
+            if (paresEncontrados === totalPares) {
+                desbloquearHasta(3);
+                const footerBtn = document.getElementById('footer-btn-pares');
+                footerBtn.disabled = false;
+                footerBtn.innerText = "Siguiente Nivel";
+                footerBtn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
+                footerBtn.onclick = () => { transicionAAudioSimple(); };
+            }
+        }
+
+
+        // --- SISTEMA JUEGO 3: AUDIO SIMPLE (TRADUCE ESTA ORACIÓN) ---
+        function transicionAAudioSimple() {
+            document.getElementById('pantalla-pares').classList.add('hidden');
+            document.getElementById('pantalla-audio-simple').classList.remove('hidden');
+            cargarAudioSimple();
+        }
+
+        function cargarAudioSimple() {
+            if (indexSimpleActual >= bancoAudioSimple.length) {
+                desbloquearHasta(4);
+                transicionAAudioAvanzado();
+                return;
+            }
+            respondidoSimple = false; seleccionSimple = null;
+            document.getElementById('lives-count-audio-simple').innerText = vidas;
+            document.getElementById('zona-respuesta-simple').innerText = "";
+            document.getElementById('mensaje-feedback-simple').classList.add('hidden');
+            document.getElementById('barra-feedback-simple').className = "border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4";
+            
+            const btn = document.getElementById('btn-accion-simple');
+            btn.disabled = true; btn.innerText = "Comprobar";
+            btn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
+
+            document.getElementById('progress-bar-audio-simple').style.width = `${(indexSimpleActual / bancoAudioSimple.length) * 100}%`;
+            reproducirAudioSimple();
+
+            const actual = bancoAudioSimple[indexSimpleActual];
+            const contenedor = document.getElementById('opciones-audio-simple');
+            contenedor.innerHTML = "";
+
+            actual.opciones.forEach(opcion => {
+                const b = document.createElement('button');
+                b.innerText = opcion;
+                b.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]";
+                b.onclick = () => {
+                    if (respondidoSimple) return;
+                    document.querySelectorAll('#opciones-audio-simple button').forEach(x => x.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]");
+                    b.className = "btn-interactivo py-3 px-5 bg-[#183446] border-2 border-[#1cb0f6] rounded-xl font-bold text-lg text-[#1cb0f6] cursor-pointer shadow-[0_4px_0_#1cb0f6]";
+                    seleccionSimple = opcion;
+                    document.getElementById('zona-respuesta-simple').innerText = opcion;
+                    
+                    btn.disabled = false;
+                    btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
+                };
+                contenedor.appendChild(b);
+            });
+        }
+
+        function reproducirAudioSimple() {
+            const actual = bancoAudioSimple[indexSimpleActual];
+            if (actual) new Audio(actual.audioUrl).play().catch(e => console.log(e));
+        }
+
+        function comprobarAudioSimple() {
+            if (respondidoSimple) { indexSimpleActual++; cargarAudioSimple(); return; }
+            respondidoSimple = true;
+            const actual = bancoAudioSimple[indexSimpleActual];
+            const barra = document.getElementById('barra-feedback-simple');
+            const box = document.getElementById('mensaje-feedback-simple');
+            const icono = document.getElementById('icono-feedback-simple');
+            const titulo = document.getElementById('titulo-feedback-simple');
+            const sub = document.getElementById('sub-feedback-simple');
+            const btn = document.getElementById('btn-accion-simple');
+
+            box.classList.remove('hidden');
+            if (seleccionSimple === actual.correcta) {
+                barra.className = "border-t-2 border-[#2b5317] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#223e1d]";
+                icono.className = "bg-[#58cc02] text-[#223e1d] w-12 h-12 flex items-center justify-center fa-solid fa-check rounded-full";
+                titulo.innerText = "¡Excelente!"; titulo.className = "font-extrabold text-[#58cc02]"; sub.classList.add('hidden');
+                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
+            } else {
+                vidas--; document.getElementById('lives-count-audio-simple').innerText = vidas;
+                barra.className = "border-t-2 border-[#5a1921] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#411b22]";
+                icono.className = "bg-[#ff4b4b] text-[#411b22] w-12 h-12 flex items-center justify-center fa-solid fa-xmark rounded-full";
+                titulo.innerText = "Solución correcta:"; titulo.className = "font-extrabold text-[#ff4b4b]";
+                sub.innerText = actual.correcta; sub.className = "text-[#ff7b7b] font-bold text-sm";
+                btn.className = "w-full bg-[#ff4b4b] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#ea2b2b]";
+                if (vidas <= 0) { setTimeout(() => { mostrarPantallaFinal(false); }, 1000); return; }
+            }
+            btn.innerText = "Continuar";
+        }
+
+
+        // --- NEW! SISTEMA JUEGO 4: AUDIO AVANZADO (ARMAR ORACIÓN COMPLETA DESDE LA IMAGEN) ---
+        function transicionAAudioAvanzado() {
+            document.getElementById('pantalla-audio-simple').classList.add('hidden');
+            document.getElementById('pantalla-audio-avanzado').classList.remove('hidden');
+            cargarAudioAvanzado();
+        }
+
+        function transicionAParesAudio() {
+            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
+            document.getElementById('pantalla-audio-pares').classList.remove('hidden');
+            inicializarParesAudio();
+        }
+
+        function cargarAudioAvanzado() {
+            if (indexAvanzadoActual >= bancoAudioAvanzado.length) {
+                desbloquearHasta(5);
+                transicionAParesAudio();
+                return;
+            }
+            respondidoAvanzado = false; palabrasSeleccionadasAvanzado = [];
+            document.getElementById('lives-count-audio-avanzado').innerText = vidas;
+            document.getElementById('zona-respuesta-frase-audio').innerHTML = "";
+            document.getElementById('mensaje-feedback-avanzado').classList.add('hidden');
+            document.getElementById('barra-feedback-avanzado').className = "border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4";
+            
+            const btnAccion = document.getElementById('btn-accion-avanzado');
+            btnAccion.disabled = true; btnAccion.innerText = "Comprobar";
+            btnAccion.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
+            btnAccion.style.boxShadow = "none";
+
+            document.getElementById('progress-bar-audio-avanzado').style.width = `${(indexAvanzadoActual / bancoAudioAvanzado.length) * 100}%`;
+            reproducirAudioAvanzado(1.0);
+
+            const actual = bancoAudioAvanzado[indexAvanzadoActual];
+            const contenedorOpciones = document.getElementById('opciones-audio-avanzado');
+            contenedorOpciones.innerHTML = "";
+
+            // Renderizar las fichas inferiores
+            actual.opciones.forEach((palabra, idx) => {
+                const b = document.createElement('button');
+                b.innerText = palabra;
+                b.id = `ficha-origen-${idx}`;
+                b.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]";
+                b.onclick = () => presionarFichaBanco(b, palabra, idx);
+                contenedorOpciones.appendChild(b);
+            });
+        }
+
+        function reproducirAudioAvanzado(velocidad) {
+            const actual = bancoAudioAvanzado[indexAvanzadoActual];
+            if (actual) {
+                const aud = new Audio(actual.audioUrl);
+                aud.playbackRate = velocidad; // 1.0 Normal, 0.5 Tortuga lenta
+                aud.play().catch(e => console.log(e));
+            }
+        }
+
+        // Al presionar una palabra del banco inferior, sube a la zona de texto
+        function presionarFichaBanco(boton, palabra, idx) {
+            if (respondidoAvanzado) return;
+
+            boton.classList.add('ficha-deshabilitada'); // Se vuelve opaca abajo
+
+            // Crear la ficha arriba en la zona de respuesta
+            const zonaRespuesta = document.getElementById('zona-respuesta-frase-audio');
+            const nuevaFicha = document.createElement('button');
+            nuevaFicha.innerText = palabra;
+            nuevaFicha.className = "py-2 px-4 bg-[#18272f] border-2 border-[#37464f] text-white font-bold rounded-xl shadow-[0_2px_0_#37464f] cursor-pointer animate-fade-in";
+            
+            // Si la tocan arriba, se elimina y regresa al banco inferior
+            nuevaFicha.onclick = () => {
+                if (respondidoAvanzado) return;
+                nuevaFicha.remove();
+                document.getElementById(`ficha-origen-${idx}`).classList.remove('ficha-deshabilitada');
+                palabrasSeleccionadasAvanzado = palabrasSeleccionadasAvanzado.filter(item => item.id !== idx);
+                evaluarEstadoBotonComprobar();
+            };
+
+            palabrasSeleccionadasAvanzado.push({ id: idx, texto: palabra, elemento: nuevaFicha });
+            zonaRespuesta.appendChild(nuevaFicha);
+
+            evaluarEstadoBotonComprobar();
+        }
+
+        function evaluarEstadoBotonComprobar() {
+            const btn = document.getElementById('btn-accion-avanzado');
+            if (palabrasSeleccionadasAvanzado.length > 0) {
+                btn.disabled = false;
+                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
+            } else {
+                btn.disabled = true;
+                btn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
+                btn.style.boxShadow = "none";
+            }
+        }
+
+        function comprobarAudioAvanzado() {
+            if (respondidoAvanzado) { indexAvanzadoActual++; cargarAudioAvanzado(); return; }
+            respondidoAvanzado = true;
+
+            const actual = bancoAudioAvanzado[indexAvanzadoActual];
+            // Unir las palabras recolectadas en un solo String limpio separado por espacios
+            const respuestaUsuario = palabrasSeleccionadasAvanzado.map(p => p.texto).join(" ").trim();
+
+            const barra = document.getElementById('barra-feedback-avanzado');
+            const box = document.getElementById('mensaje-feedback-avanzado');
+            const icono = document.getElementById('icono-feedback-avanzado');
+            const titulo = document.getElementById('titulo-feedback-avanzado');
+            const sub = document.getElementById('sub-feedback-avanzado');
+            const btn = document.getElementById('btn-accion-avanzado');
+
+            box.classList.remove('hidden');
+
+            if (respuestaUsuario.toLowerCase() === actual.correcta.toLowerCase()) {
+                barra.className = "border-t-2 border-[#2b5317] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#223e1d]";
+                icono.className = "bg-[#58cc02] text-[#223e1d] w-12 h-12 flex items-center justify-center fa-solid fa-check rounded-full";
+                titulo.innerText = "¡Excelente!"; titulo.className = "font-extrabold text-[#58cc02]"; sub.classList.add('hidden');
+                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
+            } else {
+                vidas--; document.getElementById('lives-count-audio-avanzado').innerText = vidas;
+                barra.className = "border-t-2 border-[#5a1921] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#411b22]";
+                icono.className = "bg-[#ff4b4b] text-[#411b22] w-12 h-12 flex items-center justify-center fa-solid fa-xmark rounded-full";
+                titulo.innerText = "Solución correcta:"; titulo.className = "font-extrabold text-[#ff4b4b]";
+                sub.innerText = actual.correcta; sub.className = "text-[#ff7b7b] font-bold text-sm";
+                btn.className = "w-full bg-[#ff4b4b] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#ea2b2b]";
+                if (vidas <= 0) { setTimeout(() => { mostrarPantallaFinal(false); }, 1000); return; }
+            }
+            btn.innerText = "Continuar";
+        }
+
+
+        // --- SISTEMA JUEGO 5: PARES CON AUDIO ---
+        const bancoParesAudio = [
+            { id: 1, palabra: "nina-fuego",   audio: "c:\\Users\\User\\Downloads\\nina-fuego.ogg" },
+            { id: 2, palabra: "wayra-viento", audio: "c:\\Users\\User\\Downloads\\wayra-viento.ogg" },
+            { id: 3, palabra: "yaku-agua",    audio: "c:\\Users\\User\\Downloads\\yaku.ogg" },
+            { id: 4, palabra: "miski-azucar", audio: "c:\\Users\\User\\Downloads\\miski.ogg" }
+        ];
+
+        let apSelectedAudio = null;
+        let apSelectedWord = null;
+        let apMatchedPairs = new Set();
+
+        function inicializarParesAudio() {
+            apSelectedAudio = null;
+            apSelectedWord = null;
+            apMatchedPairs = new Set();
+            vidas = 3;
+            document.getElementById('lives-count-audio-pares').innerText = vidas;
+            document.getElementById('progress-fill-audio-pares').style.width = "0%";
+
+            const contenedor = document.getElementById('pairs-audio-pares');
+            contenedor.innerHTML = "";
+
+            bancoParesAudio.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "ap-row";
+
+                const audioTile = document.createElement('div');
+                audioTile.className = "ap-tile ap-audio-tile";
+                audioTile.dataset.pair = item.id;
+                audioTile.dataset.type = "audio";
+                audioTile.innerHTML = `
+                    <span class="ap-play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+                    <span class="ap-waveform"></span>
+                    <audio src="${item.audio}" preload="none"></audio>
+                `;
+
+                const wordTile = document.createElement('div');
+                wordTile.className = "ap-tile ap-word-tile";
+                wordTile.dataset.pair = item.id;
+                wordTile.dataset.type = "word";
+                wordTile.textContent = item.palabra;
+
+                row.appendChild(audioTile);
+                row.appendChild(wordTile);
+                contenedor.appendChild(row);
+            });
+
+            // barras de la forma de onda (decorativas)
+            contenedor.querySelectorAll('.ap-waveform').forEach(wf => {
+                for (let i = 0; i < 14; i++) {
+                    const h = 6 + Math.round(Math.random() * 16);
+                    const span = document.createElement('span');
+                    span.style.height = h + "px";
+                    wf.appendChild(span);
+                }
+            });
+
+            contenedor.querySelectorAll('.ap-tile[data-type="audio"]').forEach(tile => {
+                tile.addEventListener('click', () => manejarClickAudioPares(tile));
+            });
+            contenedor.querySelectorAll('.ap-tile[data-type="word"]').forEach(tile => {
+                tile.addEventListener('click', () => manejarClickPalabraPares(tile));
+            });
+
+            const checkBtn = document.getElementById('check-btn-audio-pares');
+            checkBtn.disabled = true;
+            checkBtn.classList.remove('ap-active', 'ap-success');
+            checkBtn.textContent = "Comprobar";
+            checkBtn.onclick = () => {
+                if (checkBtn.disabled) return;
+                mostrarPantallaFinal(true);
+            };
+        }
+
+        function manejarClickAudioPares(tile) {
+            if (tile.classList.contains('ap-matched')) return;
+            const audioEl = tile.querySelector('audio');
+            if (audioEl) { audioEl.currentTime = 0; audioEl.play().catch(() => {}); }
+            if (apSelectedAudio) apSelectedAudio.classList.remove('ap-selected');
+            apSelectedAudio = tile;
+            tile.classList.add('ap-selected');
+            intentarEmparejarAudioPares();
+        }
+
+        function manejarClickPalabraPares(tile) {
+            if (tile.classList.contains('ap-matched')) return;
+            if (apSelectedWord) apSelectedWord.classList.remove('ap-selected');
+            apSelectedWord = tile;
+            tile.classList.add('ap-selected');
+            intentarEmparejarAudioPares();
+        }
+
+        function intentarEmparejarAudioPares() {
+            if (!apSelectedAudio || !apSelectedWord) return;
+            const esCorrecto = apSelectedAudio.dataset.pair === apSelectedWord.dataset.pair;
+            const audioTile = apSelectedAudio;
+            const wordTile = apSelectedWord;
+
+            if (esCorrecto) {
+                [audioTile, wordTile].forEach(t => {
+                    t.classList.remove('ap-selected');
+                    t.classList.add('ap-correct');
+                    setTimeout(() => { t.classList.remove('ap-correct'); t.classList.add('ap-matched'); }, 400);
+                });
+                apMatchedPairs.add(audioTile.dataset.pair);
+                document.getElementById('progress-fill-audio-pares').style.width =
+                    Math.round((apMatchedPairs.size / bancoParesAudio.length) * 100) + "%";
+
+                const listo = apMatchedPairs.size === bancoParesAudio.length;
+                const checkBtn = document.getElementById('check-btn-audio-pares');
+                checkBtn.disabled = !listo;
+                checkBtn.classList.toggle('ap-active', listo);
+            } else {
+                [audioTile, wordTile].forEach(t => t.classList.add('ap-wrong'));
+                vidas--;
+                document.getElementById('lives-count-audio-pares').innerText = vidas;
+                setTimeout(() => {
+                    [audioTile, wordTile].forEach(t => t.classList.remove('ap-selected', 'ap-wrong'));
+                }, 700);
+                if (vidas <= 0) {
+                    setTimeout(() => { mostrarPantallaFinal(false); }, 900);
+                }
+            }
+
+            apSelectedAudio = null;
+            apSelectedWord = null;
+        }
+
+
+        // --- PANTALLA FINAL GLOBAL ---
+        function mostrarPantallaFinal(gano) {
+            document.getElementById('pantalla-frases').classList.add('hidden');
+            document.getElementById('pantalla-pares').classList.add('hidden');
+            document.getElementById('pantalla-audio-simple').classList.add('hidden');
+            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
+            document.getElementById('pantalla-audio-pares').classList.add('hidden');
+            
+            document.getElementById('body-app').className = "bg-white font-sans text-gray-800 flex flex-col min-h-screen";
+            const finalContainer = document.getElementById('pantalla-final');
+            finalContainer.classList.remove('hidden');
+            
+            if (gano) {
+                finalContainer.innerHTML = `
+                    <div class="text-center p-6 max-w-sm mx-auto">
+                        <span class="text-6xl">🏆</span>
+                        <h1 class="text-3xl font-bold text-green-500 my-4">¡Lección Completada!</h1>
+                        <p class="text-gray-600 mb-6">Has superado con éxito las 4 fases de aprendizaje de hoy.</p>
+                        <button onclick="mostrarMapa()" class="btn-duo bg-green-500 text-white font-bold py-3 px-6 rounded-xl uppercase w-full cursor-pointer">Volver al mapa</button>
+                    </div>`;
+            } else {
+                finalContainer.innerHTML = `
+                    <div class="text-center p-6 max-w-sm mx-auto">
+                        <span class="text-6xl">😢</span>
+                        <h1 class="text-3xl font-bold text-red-500 my-4">Te quedaste sin vidas</h1>
+                        <p class="text-gray-600 mb-6">¡No te rindas! Inténtalo de nuevo para dominar la lección.</p>
+                        <button onclick="vidas = 3; mostrarMapa();" class="btn-duo bg-blue-500 text-white font-bold py-3 px-6 rounded-xl uppercase w-full cursor-pointer" style="box-shadow: 0 4px 0 #1d4ed8">Reintentar</button>
+                    </div>`;
+            }
+        }
+
+        window.onload = () => abrirNivel(1);
+    </script>
+</body>
+</html>
