@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>allin prototipo 1</title>
+    <title>Allin - Aprende Quechua</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,14 +33,8 @@
             transform: translateY(3px);
             box-shadow: none !important;
         }
-        /* Fichas usadas (cuando suben a la respuesta) */
-        .ficha-deshabilitada {
-            opacity: 0.25;
-            cursor: default;
-            pointer-events: none;
-            box-shadow: none !important;
-        }
-        /* Nodos del mapa de niveles (estilo Duolingo) */
+        
+        /* Nodos del mapa de niveles */
         .nodo-nivel {
             width: 84px;
             height: 84px;
@@ -60,48 +54,48 @@
             filter: brightness(1.05);
         }
 
-        /* --- Nivel 5: Pares con audio (prefijo ap- para evitar conflictos) --- */
-        #pantalla-audio-pares{
-            --ap-bg:#12181f;
-            --ap-card:#1c2530;
-            --ap-card-border:#3a4655;
-            --ap-card-selected:#2a9df4;
-            --ap-card-correct:#3ecf6e;
-            --ap-card-wrong:#e5484d;
-            --ap-muted:#7d8896;
-            --ap-accent:#2fb8ff;
-            --ap-pink:#ff3d81;
+        /* Styles para Pares con Audio */
+        #pantalla-audio-pares {
+            --ap-bg: #12181f;
+            --ap-card: #1c2530;
+            --ap-card-border: #3a4655;
+            --ap-card-selected: #2a9df4;
+            --ap-card-correct: #3ecf6e;
+            --ap-card-wrong: #e5484d;
+            --ap-muted: #7d8896;
+            --ap-accent: #2fb8ff;
+            --ap-pink: #ff3d81;
         }
-        .ap-screen{ width:100%; max-width:420px; margin:0 auto; padding:24px 16px 40px; }
-        .ap-topbar{ display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-        .ap-close-btn{ background:none; border:none; color:var(--ap-muted); font-size:26px; cursor:pointer; line-height:1; padding:4px; }
-        .ap-progress-track{ flex:1; height:10px; background:#2a323d; border-radius:999px; overflow:hidden; }
-        .ap-progress-fill{ height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#28d5f0,#2a9df4); transition:width .3s ease; }
-        .ap-hearts{ display:flex; align-items:center; gap:6px; color:var(--ap-pink); font-weight:800; font-size:18px; }
-        .ap-bolt{ width:20px; height:20px; background:var(--ap-pink); border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#1c0d14; }
-        .ap-title{ font-size:26px; font-weight:800; margin:0 0 32px; color:#f2f5f8; }
-        .ap-pairs{ display:flex; flex-direction:column; gap:14px; margin-bottom:32px; }
-        .ap-row{ display:flex; gap:12px; }
-        .ap-tile{ flex:1; min-height:64px; border-radius:14px; border:2px solid var(--ap-card-border); background:var(--ap-card); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 16px; transition:border-color .15s ease, background .15s ease, transform .1s ease; user-select:none; -webkit-tap-highlight-color:transparent; }
-        .ap-tile:active{ transform:scale(0.98); }
-        .ap-tile.ap-selected{ border-color:var(--ap-card-selected); }
-        .ap-tile.ap-correct{ border-color:var(--ap-card-correct); background:#173327; }
-        .ap-tile.ap-wrong{ border-color:var(--ap-card-wrong); background:#331a1c; animation:ap-shake .3s; }
-        .ap-tile.ap-matched{ opacity:0.45; cursor:default; }
-        @keyframes ap-shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
-        .ap-audio-tile{ justify-content:flex-start; gap:10px; }
-        .ap-play-icon{ flex:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--ap-accent); }
-        .ap-play-icon svg{ width:20px; height:20px; }
-        .ap-waveform{ flex:1; height:22px; display:flex; align-items:center; gap:3px; overflow:hidden; }
-        .ap-waveform span{ width:3px; border-radius:2px; background:var(--ap-accent); opacity:.85; }
-        .ap-word-tile{ font-size:18px; font-weight:700; color:#f2f5f8; }
-        .ap-check-btn{ width:100%; padding:16px; border-radius:14px; border:none; font-weight:800; font-size:15px; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; background:#2c3641; color:#6d7987; transition:background .2s, color .2s; }
-        .ap-check-btn.ap-active{ background:var(--ap-accent); color:#062033; cursor:pointer; }
-        .ap-check-btn.ap-success{ background:var(--ap-card-correct); color:#062033; }
+        .ap-screen { width: 100%; max-width: 420px; margin: 0 auto; padding: 24px 16px 40px; }
+        .ap-topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+        .ap-close-btn { background: none; border: none; color: var(--ap-muted); font-size: 26px; cursor: pointer; line-height: 1; padding: 4px; }
+        .ap-progress-track { flex: 1; height: 10px; background: #2a323d; border-radius: 999px; overflow: hidden; }
+        .ap-progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, #28d5f0, #2a9df4); transition: width .3s ease; }
+        .ap-hearts { display: flex; align-items: center; gap: 6px; color: var(--ap-pink); font-weight: 800; font-size: 18px; }
+        .ap-bolt { width: 20px; height: 20px; background: var(--ap-pink); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1c0d14; }
+        .ap-title { font-size: 26px; font-weight: 800; margin: 0 0 32px; color: #f2f5f8; }
+        .ap-pairs { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+        .ap-row { display: flex; gap: 12px; }
+        .ap-tile { flex: 1; min-height: 64px; border-radius: 14px; border: 2px solid var(--ap-card-border); background: var(--ap-card); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 16px; transition: border-color .15s ease, background .15s ease, transform .1s ease; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .ap-tile:active { transform: scale(0.98); }
+        .ap-tile.ap-selected { border-color: var(--ap-card-selected); }
+        .ap-tile.ap-correct { border-color: var(--ap-card-correct); background: #173327; }
+        .ap-tile.ap-wrong { border-color: var(--ap-card-wrong); background: #331a1c; animation: ap-shake .3s; }
+        .ap-tile.ap-matched { opacity: 0.45; cursor: default; }
+        @keyframes ap-shake { 0%,100%{ transform: translateX(0); } 25%{ transform: translateX(-4px); } 75%{ transform: translateX(4px); } }
+        .ap-audio-tile { justify-content: flex-start; gap: 10px; }
+        .ap-play-icon { flex: none; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--ap-accent); }
+        .ap-play-icon svg { width: 20px; height: 20px; }
+        .ap-waveform { flex: 1; height: 22px; display: flex; align-items: center; gap: 3px; overflow: hidden; }
+        .ap-waveform span { width: 3px; border-radius: 2px; background: var(--ap-accent); opacity: .85; }
+        .ap-word-tile { font-size: 18px; font-weight: 700; color: #f2f5f8; }
+        .ap-check-btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 800; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; background: #2c3641; color: #6d7987; transition: background .2s, color .2s; }
+        .ap-check-btn.ap-active { background: var(--ap-accent); color: #062033; cursor: pointer; }
     </style>
 </head>
 <body id="body-app" class="bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300">
 
+    <!-- MAPA DE NIVELES -->
     <div id="pantalla-mapa" class="flex flex-col flex-grow bg-gradient-to-b from-sky-50 to-white">
         <header class="p-5 border-b-2 border-gray-100 sticky top-0 bg-white/90 backdrop-blur z-50">
             <h1 class="text-2xl font-extrabold text-gray-700 text-center">Ruta de aprendizaje</h1>
@@ -110,59 +104,50 @@
 
         <main class="flex-grow flex flex-col items-center justify-center px-4 py-12">
             <div class="relative flex flex-col items-center gap-16 max-w-xs w-full">
-                <!-- Línea punteada guía -->
                 <div class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0 border-l-4 border-dashed border-gray-200 -z-10"></div>
 
-                <!-- Nivel 1: Frases -->
+                <!-- Nivel 1 -->
                 <div class="flex flex-col items-center" style="transform: translateX(-56px);">
                     <button id="nodo-nivel-1" class="nodo-nivel bg-green-400" style="box-shadow: 0 6px 0 #3f9902;">
                         <i class="fa-solid fa-comments text-3xl text-white"></i>
                     </button>
-                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">1. Frases</span>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">1. Frases y Números</span>
                 </div>
 
-                <!-- Nivel 2: Pares -->
+                <!-- Nivel 2 -->
                 <div class="flex flex-col items-center" style="transform: translateX(56px);">
                     <button id="nodo-nivel-2" class="nodo-nivel bg-sky-400" style="box-shadow: 0 6px 0 #1894ce;">
-                        <i class="fa-solid fa-layer-group text-3xl text-white"></i>
+                        <i class="fa-solid fa-[#1cb0f6] fa-book-open text-3xl text-white"></i>
                     </button>
-                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">2. Pares</span>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">2. Vocabulario</span>
                 </div>
 
-                <!-- Nivel 3: Audio simple -->
+                <!-- Nivel 3 -->
                 <div class="flex flex-col items-center" style="transform: translateX(-56px);">
                     <button id="nodo-nivel-3" class="nodo-nivel bg-purple-400" style="box-shadow: 0 6px 0 #7e22ce;">
-                        <i class="fa-solid fa-volume-high text-3xl text-white"></i>
+                        <i class="fa-solid fa-layer-group text-3xl text-white"></i>
                     </button>
-                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">3. Audio</span>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">3. Pares Texto</span>
                 </div>
 
-                <!-- Nivel 4: Audio avanzado -->
+                <!-- Nivel 4 -->
                 <div class="flex flex-col items-center" style="transform: translateX(56px);">
-                    <button id="nodo-nivel-4" class="nodo-nivel bg-orange-400" style="box-shadow: 0 6px 0 #c2410c;">
-                        <i class="fa-solid fa-headphones text-3xl text-white"></i>
-                    </button>
-                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">4. Avanzado</span>
-                </div>
-
-                <!-- Nivel 5: Pares con audio -->
-                <div class="flex flex-col items-center" style="transform: translateX(-56px);">
-                    <button id="nodo-nivel-5" class="nodo-nivel bg-pink-400" style="box-shadow: 0 6px 0 #be185d;">
+                    <button id="nodo-nivel-4" class="nodo-nivel bg-pink-400" style="box-shadow: 0 6px 0 #be185d;">
                         <i class="fa-solid fa-music text-3xl text-white"></i>
                     </button>
-                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">5. Pares audio</span>
+                    <span class="mt-2 text-xs font-bold text-gray-500 uppercase tracking-wide">4. Pares Audio</span>
                 </div>
             </div>
         </main>
     </div>
 
-
-    <div id="pantalla-frases" class="hidden flex flex-col flex-grow">
+    <!-- PANTALLA NIVEL 1 Y 2: PREGUNTAS (OPCIÓN MÚLTIPLE) -->
+    <div id="pantalla-preguntas" class="hidden flex flex-col flex-grow">
         <header class="border-b-2 border-gray-200 p-4 sticky top-0 bg-white z-50">
             <div class="max-w-xl mx-auto flex items-center justify-between gap-4">
                 <button onclick="mostrarMapa()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer">✕</button>
                 <div class="w-full bg-gray-200 h-4 rounded-full overflow-hidden">
-                    <div id="progress-bar-frases" class="bg-green-500 h-full w-0 transition-all duration-300 rounded-full"></div>
+                    <div id="progress-bar-preguntas" class="bg-green-500 h-full w-0 transition-all duration-300 rounded-full"></div>
                 </div>
                 <div class="flex items-center gap-1 text-red-500 font-bold text-lg">
                     <i class="fa-solid fa-heart"></i>
@@ -173,7 +158,7 @@
 
         <main class="flex-grow flex items-center justify-center p-4">
             <div class="max-w-md w-full text-center">
-                <h2 class="text-2xl font-bold text-gray-700 mb-2">¿Cómo se traduce esta frase?</h2>
+                <h2 class="text-2xl font-bold text-gray-700 mb-2">Selecciona la opción correcta</h2>
                 
                 <div class="flex items-center justify-center gap-4 my-8 bg-gray-50 p-6 rounded-2xl border-2 border-gray-200 relative">
                     <div class="bg-green-400 text-white p-4 rounded-full text-3xl shadow-inner">🐹</div>
@@ -186,7 +171,7 @@
             </div>
         </main>
 
-        <footer id="footer-bar-frases" class="border-t-2 border-gray-200 p-6 bg-white sticky bottom-0">
+        <footer id="footer-bar-preguntas" class="border-t-2 border-gray-200 p-6 bg-white sticky bottom-0">
             <div class="max-w-xl mx-auto flex justify-between items-center">
                 <div id="feedback-message" class="hidden flex items-center gap-3">
                     <div id="feedback-icon" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
@@ -203,7 +188,7 @@
         </footer>
     </div>
 
-
+    <!-- PANTALLA NIVEL 3: RELACIONAR PARES EN TEXTO -->
     <div id="pantalla-pares" class="hidden flex flex-col flex-grow">
         <header class="p-4 max-w-xl w-full mx-auto flex items-center gap-4">
             <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
@@ -230,101 +215,7 @@
         </footer>
     </div>
 
-
-    <div id="pantalla-audio-simple" class="hidden flex flex-col flex-grow">
-        <header class="p-4 max-w-xl w-full mx-auto flex items-center justify-between gap-4">
-            <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
-            <div class="w-full bg-[#37464f] h-4 rounded-full overflow-hidden">
-                <div id="progress-bar-audio-simple" class="bg-[#58cc02] h-full w-0 transition-all duration-300 rounded-full"></div>
-            </div>
-            <div class="flex items-center gap-1 text-[#ff4b4b] font-bold text-lg">
-                <i class="fa-solid fa-heart"></i>
-                <span id="lives-count-audio-simple">3</span>
-            </div>
-        </header>
-
-        <main class="flex-grow flex flex-col items-center justify-center px-6 max-w-xl w-full mx-auto">
-            <h1 class="text-3xl font-extrabold tracking-wide text-white self-start mb-8">Traduce esta oración</h1>
-            <div class="flex items-center justify-center gap-4 w-full mb-8">
-                <div class="text-6xl p-4 bg-[#1cb0f6]/10 rounded-full border border-[#1cb0f6]/30">🙋‍♀️</div>
-                <button onclick="reproducirAudioSimple()" class="btn-interactivo w-20 h-16 bg-[#1cb0f6] text-white rounded-2xl flex items-center justify-center cursor-pointer shadow-[0_4px_0_#1894ce]">
-                    <i class="fa-solid fa-volume-high text-2xl"></i>
-                </button>
-            </div>
-            <div class="w-full border-t-2 border-b-2 border-[#37464f] py-4 my-6 min-h-[60px] flex items-center justify-center">
-                <div id="zona-respuesta-simple" class="text-2xl font-bold text-white"></div>
-            </div>
-            <div id="opciones-audio-simple" class="flex flex-wrap gap-3 justify-center w-full mt-6"></div>
-        </main>
-
-        <footer id="barra-feedback-simple" class="border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4">
-            <div id="mensaje-feedback-simple" class="hidden flex items-center gap-3">
-                <div id="icono-feedback-simple" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
-                <div>
-                    <p id="titulo-feedback-simple" class="font-bold text-lg"></p>
-                    <p id="sub-feedback-simple" class="text-sm font-medium"></p>
-                </div>
-            </div>
-            <button id="btn-accion-simple" onclick="comprobarAudioSimple()" class="w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed" disabled>
-                Comprobar
-            </button>
-        </footer>
-    </div>
-
-
-    <div id="pantalla-audio-avanzado" class="hidden flex flex-col flex-grow">
-        <header class="p-4 max-w-xl w-full mx-auto flex items-center justify-between gap-4">
-            <button onclick="mostrarMapa()" class="text-gray-500 hover:text-gray-300 text-2xl font-bold cursor-pointer">✕</button>
-            <div class="w-full bg-[#37464f] h-4 rounded-full overflow-hidden">
-                <div id="progress-bar-audio-avanzado" class="bg-[#58cc02] h-full w-0 transition-all duration-300 rounded-full"></div>
-            </div>
-            <div class="flex items-center gap-1 text-[#ff4b4b] font-bold text-lg">
-                <i class="fa-solid fa-heart"></i>
-                <span id="lives-count-audio-avanzado">3</span>
-            </div>
-        </header>
-
-        <main class="flex-grow flex flex-col items-center justify-center px-6 max-w-xl w-full mx-auto">
-            <h1 class="text-3xl font-extrabold tracking-wide text-white self-start mb-6">Escucha y selecciona las palabras</h1>
-
-            <div class="flex items-center justify-center gap-4 w-full mb-6 mt-2">
-                <div class="text-6xl p-4 bg-[#1cb0f6]/10 rounded-full border border-[#1cb0f6]/30">🙋‍♀️</div>
-                
-                <div class="bg-[#131f24] border-2 border-[#37464f] rounded-2xl flex overflow-hidden shadow-md relative 
-                            after:content-[''] after:absolute after:top-1/2 after:-left-2 after:-mt-2 
-                            after:border-t-8 after:border-t-transparent after:border-r-8 after:border-r-[#37464f] 
-                            after:border-b-8 after:border-b-transparent">
-                    <button onclick="reproducirAudioAvanzado(1.0)" class="btn-interactivo p-4 bg-[#18272f] hover:bg-[#20323c] text-[#1cb0f6] border-r border-[#37464f] font-bold text-xl flex items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-volume-high text-2xl"></i>
-                    </button>
-                    <button onclick="reproducirAudioAvanzado(0.5)" class="btn-interactivo p-4 bg-[#18272f] hover:bg-[#20323c] text-[#1cb0f6] font-bold text-xl flex items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-turtle text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="w-full border-t-2 border-b-2 border-[#37464f] py-4 my-4 min-h-[80px] flex flex-wrap gap-2 items-center justify-center" style="background-image: linear-gradient(to bottom, transparent 38px, #37464f 39px, #37464f 40px, transparent 41px); background-size: 100% 44px;">
-                <div id="zona-respuesta-frase-audio" class="flex flex-wrap gap-2 justify-center w-full"></div>
-            </div>
-
-            <div id="opciones-audio-avanzado" class="flex flex-wrap gap-2 justify-center items-center w-full mt-6 mb-8"></div>
-        </main>
-
-        <footer id="barra-feedback-avanzado" class="border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4">
-            <div id="mensaje-feedback-avanzado" class="hidden flex items-center gap-3">
-                <div id="icono-feedback-avanzado" class="text-xl rounded-full w-12 h-12 flex items-center justify-center text-white fa-solid leading-none"></div>
-                <div>
-                    <p id="titulo-feedback-avanzado" class="font-bold text-lg"></p>
-                    <p id="sub-feedback-avanzado" class="text-sm font-medium"></p>
-                </div>
-            </div>
-            <button id="btn-accion-avanzado" onclick="comprobarAudioAvanzado()" class="w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed" disabled>
-                Comprobar
-            </button>
-        </footer>
-    </div>
-
-
+    <!-- PANTALLA NIVEL 4: PARES CON AUDIO -->
     <div id="pantalla-audio-pares" class="hidden flex flex-col flex-grow">
         <div class="ap-screen">
             <div class="ap-topbar">
@@ -341,102 +232,81 @@
         </div>
     </div>
 
-
+    <!-- PANTALLA FINAL GLOBAL -->
     <div id="pantalla-final" class="hidden flex-grow flex items-center justify-center p-4 text-center"></div>
 
-
     <script>
-        const IDIOMA_ORIGEN = "Español"; 
-        const IDIOMA_DESTINO = "quechua"; 
-
-        // Nivel 1: Frases
-        const ejercicios = [
-            { pregunta: "Hola, ¿cómo estás?", opciones: ["allinllachu, imaynallam?", "rimaykullayki", "riqsikuyki"], correcta: "allinllachu, imaynallam?" }
-            ,{ pregunta: "Gracias por tu ayuda.", opciones: ["sulpayki", "sulpayki kachun", "añayki"], correcta: "sulpayki kachun" },
-               { pregunta: "buenos dias ", opciones: ["rimaykullayki", "sulpayki kachun", "añayki"], correcta: "rimaykullayki" },
-
-            // --- Números del 1 al 10 (2 preguntas por número) ---
-            { pregunta: "¿Cómo se dice el número 1 en quechua?", opciones: ["huk", "kimsa", "iskay"], correcta: "huk" },
-            { pregunta: "¿Qué número es 'huk' en quechua?", opciones: ["5", "10", "1"], correcta: "1" },
-            { pregunta: "¿Cómo se dice el número 2 en quechua?", opciones: ["iskay", "chunka", "kimsa"], correcta: "iskay" },
-            { pregunta: "¿Qué número es 'iskay' en quechua?", opciones: ["1", "10", "2"], correcta: "2" },
-            { pregunta: "¿Cómo se dice el número 3 en quechua?", opciones: ["pichqa", "kimsa", "huk"], correcta: "kimsa" },
-            { pregunta: "¿Qué número es 'kimsa' en quechua?", opciones: ["8", "10", "3"], correcta: "3" },
-            { pregunta: "¿Cómo se dice el número 4 en quechua?", opciones: ["huk", "suqta", "tawa"], correcta: "tawa" },
-            { pregunta: "¿Qué número es 'tawa' en quechua?", opciones: ["7", "6", "4"], correcta: "4" },
-            { pregunta: "¿Cómo se dice el número 5 en quechua?", opciones: ["iskay", "qanchis", "pichqa"], correcta: "pichqa" },
-            { pregunta: "¿Qué número es 'pichqa' en quechua?", opciones: ["5", "7", "2"], correcta: "5" },
-            { pregunta: "¿Cómo se dice el número 6 en quechua?", opciones: ["huk", "suqta", "isqun"], correcta: "suqta" },
-            { pregunta: "¿Qué número es 'suqta' en quechua?", opciones: ["6", "8", "2"], correcta: "6" },
-            { pregunta: "¿Cómo se dice el número 7 en quechua?", opciones: ["suqta", "qanchis", "tawa"], correcta: "qanchis" },
-            { pregunta: "¿Qué número es 'qanchis' en quechua?", opciones: ["4", "7", "1"], correcta: "7" },
-            { pregunta: "¿Cómo se dice el número 8 en quechua?", opciones: ["pusaq", "iskay", "tawa"], correcta: "pusaq" },
-            { pregunta: "¿Qué número es 'pusaq' en quechua?", opciones: ["6", "9", "8"], correcta: "8" },
-            { pregunta: "¿Cómo se dice el número 9 en quechua?", opciones: ["isqun", "suqta", "tawa"], correcta: "isqun" },
-            { pregunta: "¿Qué número es 'isqun' en quechua?", opciones: ["2", "9", "3"], correcta: "9" },
-            { pregunta: "¿Cómo se dice el número 10 en quechua?", opciones: ["chunka", "pusaq", "kimsa"], correcta: "chunka" },
-            { pregunta: "¿Qué número es 'chunka' en quechua?", opciones: ["10", "9", "4"], correcta: "10" }
+        // DATA NIVEL 1: Frases y Números (1 al 10)
+        const nivel1Data = [
+            { pregunta: "Hola, ¿cómo estás?", opciones: ["allinllachu, imaynallam?", "rimaykullayki", "riqsikuyki"], correcta: "allinllachu, imaynallam?" },
+            { pregunta: "Gracias por tu ayuda.", opciones: ["sulpayki", "sulpayki kachun", "añayki"], correcta: "sulpayki kachun" },
+            { pregunta: "Buenos días", opciones: ["rimaykullayki", "sulpayki kachun", "añayki"], correcta: "rimaykullayki" },
+            { pregunta: "¿Cómo se dice 1 en quechua?", opciones: ["huk", "kimsa", "iskay"], correcta: "huk" },
+            { pregunta: "¿Qué número es 'huk'?", opciones: ["5", "10", "1"], correcta: "1" },
+            { pregunta: "¿Cómo se dice 2 en quechua?", opciones: ["iskay", "chunka", "kimsa"], correcta: "iskay" },
+            { pregunta: "¿Qué número es 'iskay'?", opciones: ["1", "10", "2"], correcta: "2" },
+            { pregunta: "¿Cómo se dice 3 en quechua?", opciones: ["pichqa", "kimsa", "huk"], correcta: "kimsa" },
+            { pregunta: "¿Qué número es 'kimsa'?", opciones: ["8", "10", "3"], correcta: "3" },
+            { pregunta: "¿Cómo se dice 4 en quechua?", opciones: ["huk", "suqta", "tawa"], correcta: "tawa" },
+            { pregunta: "¿Qué número es 'tawa'?", opciones: ["7", "6", "4"], correcta: "4" },
+            { pregunta: "¿Cómo se dice 5 en quechua?", opciones: ["iskay", "qanchis", "pichqa"], correcta: "pichqa" },
+            { pregunta: "¿Qué número es 'pichqa'?", opciones: ["5", "7", "2"], correcta: "5" },
+            { pregunta: "¿Cómo se dice 6 en quechua?", opciones: ["huk", "suqta", "isqun"], correcta: "suqta" },
+            { pregunta: "¿Qué número es 'suqta'?", opciones: ["6", "8", "2"], correcta: "6" },
+            { pregunta: "¿Cómo se dice 7 en quechua?", opciones: ["suqta", "qanchis", "tawa"], correcta: "qanchis" },
+            { pregunta: "¿Qué número es 'qanchis'?", opciones: ["4", "7", "1"], correcta: "7" },
+            { pregunta: "¿Cómo se dice 8 en quechua?", opciones: ["pusaq", "iskay", "tawa"], correcta: "pusaq" },
+            { pregunta: "¿Qué número es 'pusaq'?", opciones: ["6", "9", "8"], correcta: "8" },
+            { pregunta: "¿Cómo se dice 9 en quechua?", opciones: ["isqun", "suqta", "tawa"], correcta: "isqun" },
+            { pregunta: "¿Qué número es 'isqun'?", opciones: ["2", "9", "3"], correcta: "9" },
+            { pregunta: "¿Cómo se dice 10 en quechua?", opciones: ["chunka", "pusaq", "kimsa"], correcta: "chunka" },
+            { pregunta: "¿Qué número es 'chunka'?", opciones: ["10", "9", "4"], correcta: "10" }
         ];
 
-        // Nivel 2: Pares
-        const diccionario = [
-            { id: 1, lang1: "agua", lang2: "yaku" },
-            { id: 2, lang1: "hola", lang2: "Allinllachu" },
-            { id: 3, lang1: "azúcar", lang2: "miski" },
-            { id: 4, lang1: "adios", lang2: "tupanchikkama"}
+        // DATA NIVEL 2: Vocabulario (Preguntas con 3 opciones)
+        const nivel2Data = [
+            { pregunta: "¿Cómo se dice cielo en quechua?", opciones: ["hanaq pacha", "yaku", "panti"], correcta: "hanaq pacha" },
+            { pregunta: "¿Cómo se dice pan en quechua?", opciones: ["tanta", "miski", "kachi"], correcta: "tanta" }
         ];
 
-        // BANCO NIVEL 3: Un solo botón de audio, se elige una palabra única
-        const bancoAudioSimple = [
-    { 
-        audioUrl: "c:\\Users\\User\\Downloads\\allinlla chachaykamuy.ogg", 
-        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
-        correcta: "bienvenido"
-    },
-    { 
-        audioUrl: "c:\\Users\\User\\Downloads\\miski.ogg" , 
-        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
-        correcta: "azúcar"
-    }
-];
-
-
-        // BANCO NIVEL 4: Doble botón (Tortuga), se tocan palabras en orden para construir la frase completa
-        const bancoAudioAvanzado = [
-            { 
-                audioUrl: "audios/frase1.mp3", 
-                opciones: ["milk", "coffee", "or", "please", "sugar", "tea"], 
-                correcta: "coffee or tea please" // Oración que deben formar armando las palabras
-            }
+        // DATA NIVEL 3: Relación de palabras sin audio
+        const nivel3Data = [
+            { id: 1, lang1: "mama", lang2: "mama" },
+            { id: 2, lang1: "papa", lang2: " papan" },
+            { id: 3, lang1: "hermano", lang2: "wawqi" },
+             { id: 3, lang1: "hermana", lang2: " ñaña " }
         ];
 
-        // Controladores globales
+        // DATA NIVEL 4: Pares con Audio
+        const nivel4Data = [
+            { id: 1, palabra: "nina-fuego",   audio: "audios/nina-fuego.ogg" },
+            { id: 2, palabra: "wayra-viento", audio: "audios/wayra-viento.ogg" },
+            { id: 3, palabra: "yaku-agua",    audio: "audios/yaku.ogg" },
+            { id: 4, palabra: "miski-azucar", audio: "audios/miski.ogg" }
+        ];
+
+        // Variables de estado global
         let vidas = 3;
-        let indexActual = 0;
+        let nivelMaximoDesbloqueado = 1;
+        let bancoActual = [];
+        let indexPreguntaActual = 0;
         let opcionSeleccionada = null;
         let estadoRespondido = false;
 
+        // Variables Nivel 3 (Pares)
         let primerBotonSeleccionado = null;
         let paresEncontrados = 0;
-        const totalPares = diccionario.length;
 
-        let indexSimpleActual = 0;
-        let seleccionSimple = null;
-        let respondidoSimple = false;
-
-        let indexAvanzadoActual = 0;
-        let palabrasSeleccionadasAvanzado = []; 
-        let respondidoAvanzado = false;
-
-        // Progreso: nivel más alto desbloqueado (1 = solo el nivel 1 disponible)
-        let nivelMaximoDesbloqueado = 1;
+        // Variables Nivel 4 (Pares con audio)
+        let apSelectedAudio = null;
+        let apSelectedWord = null;
+        let apMatchedPairs = new Set();
 
         const nodosNivelData = [
-            { n: 1, color: "bg-green-400",  sombra: "0 6px 0 #3f9902", icono: "fa-comments" },
-            { n: 2, color: "bg-sky-400",    sombra: "0 6px 0 #1894ce", icono: "fa-layer-group" },
-            { n: 3, color: "bg-purple-400", sombra: "0 6px 0 #7e22ce", icono: "fa-volume-high" },
-            { n: 4, color: "bg-orange-400", sombra: "0 6px 0 #c2410c", icono: "fa-headphones" },
-            { n: 5, color: "bg-pink-400",   sombra: "0 6px 0 #be185d", icono: "fa-music" }
+            { n: 1, color: "bg-green-400", sombra: "0 6px 0 #3f9902", icono: "fa-comments" },
+            { n: 2, color: "bg-sky-400",   sombra: "0 6px 0 #1894ce", icono: "fa-book-open" },
+            { n: 3, color: "bg-purple-400",sombra: "0 6px 0 #7e22ce", icono: "fa-layer-group" },
+            { n: 4, color: "bg-pink-400",  sombra: "0 6px 0 #be185d", icono: "fa-music" }
         ];
 
         function desbloquearHasta(numero) {
@@ -466,14 +336,10 @@
             });
         }
 
-
-        // --- MAPA DE NIVELES ---
         function ocultarTodasLasPantallas() {
             document.getElementById('pantalla-mapa').classList.add('hidden');
-            document.getElementById('pantalla-frases').classList.add('hidden');
+            document.getElementById('pantalla-preguntas').classList.add('hidden');
             document.getElementById('pantalla-pares').classList.add('hidden');
-            document.getElementById('pantalla-audio-simple').classList.add('hidden');
-            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
             document.getElementById('pantalla-audio-pares').classList.add('hidden');
             document.getElementById('pantalla-final').classList.add('hidden');
         }
@@ -486,65 +352,46 @@
         }
 
         function abrirNivel(numero) {
-            if (numero > nivelMaximoDesbloqueado) return; // nivel todavía bloqueado
-
+            if (numero > nivelMaximoDesbloqueado) return;
             ocultarTodasLasPantallas();
-            vidas = 3; // vidas frescas cada vez que se entra a un nivel desde el mapa
+            vidas = 3;
 
-            if (numero === 1) {
+            if (numero === 1 || numero === 2) {
                 document.getElementById('body-app').className = "bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300";
-                document.getElementById('pantalla-frases').classList.remove('hidden');
-                indexActual = 0;
-                iniciarJuegoFrases();
-            } else if (numero === 2) {
+                document.getElementById('pantalla-preguntas').classList.remove('hidden');
+                bancoActual = (numero === 1) ? nivel1Data : nivel2Data;
+                indexPreguntaActual = 0;
+                iniciarJuegoPreguntas(numero);
+            } else if (numero === 3) {
                 document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
                 document.getElementById('pantalla-pares').classList.remove('hidden');
                 paresEncontrados = 0;
                 primerBotonSeleccionado = null;
                 resetearFooterPares();
                 inicializarMatrizPares();
-            } else if (numero === 3) {
-                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
-                document.getElementById('pantalla-audio-simple').classList.remove('hidden');
-                indexSimpleActual = 0;
-                cargarAudioSimple();
             } else if (numero === 4) {
-                document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
-                document.getElementById('pantalla-audio-avanzado').classList.remove('hidden');
-                indexAvanzadoActual = 0;
-                cargarAudioAvanzado();
-            } else if (numero === 5) {
                 document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
                 document.getElementById('pantalla-audio-pares').classList.remove('hidden');
                 inicializarParesAudio();
             }
         }
 
-        function resetearFooterPares() {
-            document.getElementById('progress-bar-pares').style.width = "0%";
-            document.getElementById('lives-count-pares').innerText = vidas;
-            const footerBtn = document.getElementById('footer-btn-pares');
-            footerBtn.disabled = true;
-            footerBtn.innerText = "Comprobar";
-            footerBtn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
-            footerBtn.onclick = null;
-        }
-
-
-        // --- SISTEMA JUEGO 1: FRASES ---
-        function iniciarJuegoFrases() {
-            if (indexActual >= ejercicios.length) {
-                desbloquearHasta(2);
-                transicionAPares();
+        // --- SISTEMA DE PREGUNTAS (NIVEL 1 & NIVEL 2) ---
+        let nivelPreguntaEnCurso = 1;
+        function iniciarJuegoPreguntas(nivel) {
+            nivelPreguntaEnCurso = nivel;
+            if (indexPreguntaActual >= bancoActual.length) {
+                desbloquearHasta(nivel + 1);
+                abrirNivel(nivel + 1);
                 return;
             }
             estadoRespondido = false;
             opcionSeleccionada = null;
             document.getElementById('lives-count').innerText = vidas;
-            actualizarBarraFrases();
-            resetearFooterFrases();
+            actualizarBarraPreguntas();
+            resetearFooterPreguntas();
 
-            const ejercicio = ejercicios[indexActual];
+            const ejercicio = bancoActual[indexPreguntaActual];
             document.getElementById('phrase-to-translate').innerText = ejercicio.pregunta;
             const container = document.getElementById('options-container');
             container.innerHTML = "";
@@ -553,12 +400,12 @@
                 const btn = document.createElement('button');
                 btn.innerText = opcion;
                 btn.className = "w-full text-left py-4 px-6 border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-all text-base focus:outline-none cursor-pointer";
-                btn.onclick = () => seleccionarOpcionFrases(btn, opcion);
+                btn.onclick = () => seleccionarOpcionPregunta(btn, opcion);
                 container.appendChild(btn);
             });
         }
 
-        function seleccionarOpcionFrases(boton, valor) {
+        function seleccionarOpcionPregunta(boton, valor) {
             if (estadoRespondido) return;
             document.querySelectorAll('#options-container button').forEach(b => {
                 b.classList.remove('border-blue-400', 'bg-blue-50', 'text-blue-600');
@@ -575,13 +422,13 @@
 
         function checkAnswer() {
             if (estadoRespondido) {
-                indexActual++;
-                iniciarJuegoFrases();
+                indexPreguntaActual++;
+                iniciarJuegoPreguntas(nivelPreguntaEnCurso);
                 return;
             }
             estadoRespondido = true;
-            const ejercicio = ejercicios[indexActual];
-            const footer = document.getElementById('footer-bar-frases');
+            const ejercicio = bancoActual[indexPreguntaActual];
+            const footer = document.getElementById('footer-bar-preguntas');
             const feedback = document.getElementById('feedback-message');
             const feedbackIcon = document.getElementById('feedback-icon');
             const feedbackTitle = document.getElementById('feedback-title');
@@ -610,8 +457,8 @@
             actionBtn.innerText = "Continuar";
         }
 
-        function resetearFooterFrases() {
-            document.getElementById('footer-bar-frases').className = "border-t-2 border-gray-200 p-6 bg-white sticky bottom-0";
+        function resetearFooterPreguntas() {
+            document.getElementById('footer-bar-preguntas').className = "border-t-2 border-gray-200 p-6 bg-white sticky bottom-0";
             document.getElementById('feedback-message').classList.add('hidden');
             const actionBtn = document.getElementById('action-btn');
             actionBtn.disabled = true;
@@ -620,19 +467,11 @@
             actionBtn.style.boxShadow = "0 4px 0 #e5e5e5";
         }
 
-        function actualizarBarraFrases() {
-            document.getElementById('progress-bar-frases').style.width = `${(indexActual / ejercicios.length) * 100}%`;
+        function actualizarBarraPreguntas() {
+            document.getElementById('progress-bar-preguntas').style.width = `${(indexPreguntaActual / bancoActual.length) * 100}%`;
         }
 
-
-        // --- SISTEMA JUEGO 2: SELECCIONAR PARES ---
-        function transicionAPares() {
-            document.getElementById('pantalla-frases').classList.add('hidden');
-            document.getElementById('body-app').className = "text-white font-sans flex flex-col min-h-screen transition-colors duration-300 bg-[#131f24]";
-            document.getElementById('pantalla-pares').classList.remove('hidden');
-            inicializarMatrizPares();
-        }
-
+        // --- SISTEMA NIVEL 3: SELECCIONAR PARES TEXTO ---
         function mezclarArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -643,7 +482,7 @@
 
         function inicializarMatrizPares() {
             let listaPalabras = [];
-            diccionario.forEach(par => {
+            nivel3Data.forEach(par => {
                 listaPalabras.push({ texto: par.lang1, parId: par.id });
                 listaPalabras.push({ texto: par.lang2, parId: par.id });
             });
@@ -703,246 +542,30 @@
             btn.className = "word-btn w-full py-4 px-4 bg-[#131f24] border-2 border-[#212f35] rounded-2xl font-bold text-lg text-[#37464f] opacity-20 text-center cursor-default pointer-events-none";
         }
 
+        function resetearFooterPares() {
+            document.getElementById('progress-bar-pares').style.width = "0%";
+            document.getElementById('lives-count-pares').innerText = vidas;
+            const footerBtn = document.getElementById('footer-btn-pares');
+            footerBtn.disabled = true;
+            footerBtn.innerText = "Comprobar";
+            footerBtn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
+            footerBtn.onclick = null;
+        }
+
         function verificarFinJuegoPares() {
             paresEncontrados++;
-            document.getElementById('progress-bar-pares').style.width = `${(paresEncontrados / totalPares) * 100}%`;
-            if (paresEncontrados === totalPares) {
-                desbloquearHasta(3);
+            document.getElementById('progress-bar-pares').style.width = `${(paresEncontrados / nivel3Data.length) * 100}%`;
+            if (paresEncontrados === nivel3Data.length) {
+                desbloquearHasta(4);
                 const footerBtn = document.getElementById('footer-btn-pares');
                 footerBtn.disabled = false;
                 footerBtn.innerText = "Siguiente Nivel";
                 footerBtn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
-                footerBtn.onclick = () => { transicionAAudioSimple(); };
+                footerBtn.onclick = () => { abrirNivel(4); };
             }
         }
 
-
-        // --- SISTEMA JUEGO 3: AUDIO SIMPLE (TRADUCE ESTA ORACIÓN) ---
-        function transicionAAudioSimple() {
-            document.getElementById('pantalla-pares').classList.add('hidden');
-            document.getElementById('pantalla-audio-simple').classList.remove('hidden');
-            cargarAudioSimple();
-        }
-
-        function cargarAudioSimple() {
-            if (indexSimpleActual >= bancoAudioSimple.length) {
-                desbloquearHasta(4);
-                transicionAAudioAvanzado();
-                return;
-            }
-            respondidoSimple = false; seleccionSimple = null;
-            document.getElementById('lives-count-audio-simple').innerText = vidas;
-            document.getElementById('zona-respuesta-simple').innerText = "";
-            document.getElementById('mensaje-feedback-simple').classList.add('hidden');
-            document.getElementById('barra-feedback-simple').className = "border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4";
-            
-            const btn = document.getElementById('btn-accion-simple');
-            btn.disabled = true; btn.innerText = "Comprobar";
-            btn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
-
-            document.getElementById('progress-bar-audio-simple').style.width = `${(indexSimpleActual / bancoAudioSimple.length) * 100}%`;
-            reproducirAudioSimple();
-
-            const actual = bancoAudioSimple[indexSimpleActual];
-            const contenedor = document.getElementById('opciones-audio-simple');
-            contenedor.innerHTML = "";
-
-            actual.opciones.forEach(opcion => {
-                const b = document.createElement('button');
-                b.innerText = opcion;
-                b.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]";
-                b.onclick = () => {
-                    if (respondidoSimple) return;
-                    document.querySelectorAll('#opciones-audio-simple button').forEach(x => x.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]");
-                    b.className = "btn-interactivo py-3 px-5 bg-[#183446] border-2 border-[#1cb0f6] rounded-xl font-bold text-lg text-[#1cb0f6] cursor-pointer shadow-[0_4px_0_#1cb0f6]";
-                    seleccionSimple = opcion;
-                    document.getElementById('zona-respuesta-simple').innerText = opcion;
-                    
-                    btn.disabled = false;
-                    btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
-                };
-                contenedor.appendChild(b);
-            });
-        }
-
-        function reproducirAudioSimple() {
-            const actual = bancoAudioSimple[indexSimpleActual];
-            if (actual) new Audio(actual.audioUrl).play().catch(e => console.log(e));
-        }
-
-        function comprobarAudioSimple() {
-            if (respondidoSimple) { indexSimpleActual++; cargarAudioSimple(); return; }
-            respondidoSimple = true;
-            const actual = bancoAudioSimple[indexSimpleActual];
-            const barra = document.getElementById('barra-feedback-simple');
-            const box = document.getElementById('mensaje-feedback-simple');
-            const icono = document.getElementById('icono-feedback-simple');
-            const titulo = document.getElementById('titulo-feedback-simple');
-            const sub = document.getElementById('sub-feedback-simple');
-            const btn = document.getElementById('btn-accion-simple');
-
-            box.classList.remove('hidden');
-            if (seleccionSimple === actual.correcta) {
-                barra.className = "border-t-2 border-[#2b5317] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#223e1d]";
-                icono.className = "bg-[#58cc02] text-[#223e1d] w-12 h-12 flex items-center justify-center fa-solid fa-check rounded-full";
-                titulo.innerText = "¡Excelente!"; titulo.className = "font-extrabold text-[#58cc02]"; sub.classList.add('hidden');
-                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
-            } else {
-                vidas--; document.getElementById('lives-count-audio-simple').innerText = vidas;
-                barra.className = "border-t-2 border-[#5a1921] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#411b22]";
-                icono.className = "bg-[#ff4b4b] text-[#411b22] w-12 h-12 flex items-center justify-center fa-solid fa-xmark rounded-full";
-                titulo.innerText = "Solución correcta:"; titulo.className = "font-extrabold text-[#ff4b4b]";
-                sub.innerText = actual.correcta; sub.className = "text-[#ff7b7b] font-bold text-sm";
-                btn.className = "w-full bg-[#ff4b4b] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#ea2b2b]";
-                if (vidas <= 0) { setTimeout(() => { mostrarPantallaFinal(false); }, 1000); return; }
-            }
-            btn.innerText = "Continuar";
-        }
-
-
-        // --- NEW! SISTEMA JUEGO 4: AUDIO AVANZADO (ARMAR ORACIÓN COMPLETA DESDE LA IMAGEN) ---
-        function transicionAAudioAvanzado() {
-            document.getElementById('pantalla-audio-simple').classList.add('hidden');
-            document.getElementById('pantalla-audio-avanzado').classList.remove('hidden');
-            cargarAudioAvanzado();
-        }
-
-        function transicionAParesAudio() {
-            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
-            document.getElementById('pantalla-audio-pares').classList.remove('hidden');
-            inicializarParesAudio();
-        }
-
-        function cargarAudioAvanzado() {
-            if (indexAvanzadoActual >= bancoAudioAvanzado.length) {
-                desbloquearHasta(5);
-                transicionAParesAudio();
-                return;
-            }
-            respondidoAvanzado = false; palabrasSeleccionadasAvanzado = [];
-            document.getElementById('lives-count-audio-avanzado').innerText = vidas;
-            document.getElementById('zona-respuesta-frase-audio').innerHTML = "";
-            document.getElementById('mensaje-feedback-avanzado').classList.add('hidden');
-            document.getElementById('barra-feedback-avanzado').className = "border-t-2 border-[#37464f] p-6 w-full max-w-xl mx-auto flex flex-col gap-4";
-            
-            const btnAccion = document.getElementById('btn-accion-avanzado');
-            btnAccion.disabled = true; btnAccion.innerText = "Comprobar";
-            btnAccion.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
-            btnAccion.style.boxShadow = "none";
-
-            document.getElementById('progress-bar-audio-avanzado').style.width = `${(indexAvanzadoActual / bancoAudioAvanzado.length) * 100}%`;
-            reproducirAudioAvanzado(1.0);
-
-            const actual = bancoAudioAvanzado[indexAvanzadoActual];
-            const contenedorOpciones = document.getElementById('opciones-audio-avanzado');
-            contenedorOpciones.innerHTML = "";
-
-            // Renderizar las fichas inferiores
-            actual.opciones.forEach((palabra, idx) => {
-                const b = document.createElement('button');
-                b.innerText = palabra;
-                b.id = `ficha-origen-${idx}`;
-                b.className = "btn-interactivo py-3 px-5 bg-[#131f24] border-2 border-[#37464f] rounded-xl font-bold text-lg text-[#e3edf3] cursor-pointer shadow-[0_4px_0_#37464f]";
-                b.onclick = () => presionarFichaBanco(b, palabra, idx);
-                contenedorOpciones.appendChild(b);
-            });
-        }
-
-        function reproducirAudioAvanzado(velocidad) {
-            const actual = bancoAudioAvanzado[indexAvanzadoActual];
-            if (actual) {
-                const aud = new Audio(actual.audioUrl);
-                aud.playbackRate = velocidad; // 1.0 Normal, 0.5 Tortuga lenta
-                aud.play().catch(e => console.log(e));
-            }
-        }
-
-        // Al presionar una palabra del banco inferior, sube a la zona de texto
-        function presionarFichaBanco(boton, palabra, idx) {
-            if (respondidoAvanzado) return;
-
-            boton.classList.add('ficha-deshabilitada'); // Se vuelve opaca abajo
-
-            // Crear la ficha arriba en la zona de respuesta
-            const zonaRespuesta = document.getElementById('zona-respuesta-frase-audio');
-            const nuevaFicha = document.createElement('button');
-            nuevaFicha.innerText = palabra;
-            nuevaFicha.className = "py-2 px-4 bg-[#18272f] border-2 border-[#37464f] text-white font-bold rounded-xl shadow-[0_2px_0_#37464f] cursor-pointer animate-fade-in";
-            
-            // Si la tocan arriba, se elimina y regresa al banco inferior
-            nuevaFicha.onclick = () => {
-                if (respondidoAvanzado) return;
-                nuevaFicha.remove();
-                document.getElementById(`ficha-origen-${idx}`).classList.remove('ficha-deshabilitada');
-                palabrasSeleccionadasAvanzado = palabrasSeleccionadasAvanzado.filter(item => item.id !== idx);
-                evaluarEstadoBotonComprobar();
-            };
-
-            palabrasSeleccionadasAvanzado.push({ id: idx, texto: palabra, elemento: nuevaFicha });
-            zonaRespuesta.appendChild(nuevaFicha);
-
-            evaluarEstadoBotonComprobar();
-        }
-
-        function evaluarEstadoBotonComprobar() {
-            const btn = document.getElementById('btn-accion-avanzado');
-            if (palabrasSeleccionadasAvanzado.length > 0) {
-                btn.disabled = false;
-                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
-            } else {
-                btn.disabled = true;
-                btn.className = "w-full bg-[#37464f] text-[#4b5a63] font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-not-allowed";
-                btn.style.boxShadow = "none";
-            }
-        }
-
-        function comprobarAudioAvanzado() {
-            if (respondidoAvanzado) { indexAvanzadoActual++; cargarAudioAvanzado(); return; }
-            respondidoAvanzado = true;
-
-            const actual = bancoAudioAvanzado[indexAvanzadoActual];
-            // Unir las palabras recolectadas en un solo String limpio separado por espacios
-            const respuestaUsuario = palabrasSeleccionadasAvanzado.map(p => p.texto).join(" ").trim();
-
-            const barra = document.getElementById('barra-feedback-avanzado');
-            const box = document.getElementById('mensaje-feedback-avanzado');
-            const icono = document.getElementById('icono-feedback-avanzado');
-            const titulo = document.getElementById('titulo-feedback-avanzado');
-            const sub = document.getElementById('sub-feedback-avanzado');
-            const btn = document.getElementById('btn-accion-avanzado');
-
-            box.classList.remove('hidden');
-
-            if (respuestaUsuario.toLowerCase() === actual.correcta.toLowerCase()) {
-                barra.className = "border-t-2 border-[#2b5317] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#223e1d]";
-                icono.className = "bg-[#58cc02] text-[#223e1d] w-12 h-12 flex items-center justify-center fa-solid fa-check rounded-full";
-                titulo.innerText = "¡Excelente!"; titulo.className = "font-extrabold text-[#58cc02]"; sub.classList.add('hidden');
-                btn.className = "w-full bg-[#58cc02] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#3f9902]";
-            } else {
-                vidas--; document.getElementById('lives-count-audio-avanzado').innerText = vidas;
-                barra.className = "border-t-2 border-[#5a1921] p-6 w-full max-w-xl mx-auto flex flex-col gap-4 bg-[#411b22]";
-                icono.className = "bg-[#ff4b4b] text-[#411b22] w-12 h-12 flex items-center justify-center fa-solid fa-xmark rounded-full";
-                titulo.innerText = "Solución correcta:"; titulo.className = "font-extrabold text-[#ff4b4b]";
-                sub.innerText = actual.correcta; sub.className = "text-[#ff7b7b] font-bold text-sm";
-                btn.className = "w-full bg-[#ff4b4b] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-base cursor-pointer shadow-[0_4px_0_#ea2b2b]";
-                if (vidas <= 0) { setTimeout(() => { mostrarPantallaFinal(false); }, 1000); return; }
-            }
-            btn.innerText = "Continuar";
-        }
-
-
-        // --- SISTEMA JUEGO 5: PARES CON AUDIO ---
-        const bancoParesAudio = [
-            { id: 1, palabra: "nina-fuego",   audio: "audios/nina-fuego.ogg" },
-            { id: 2, palabra: "wayra-viento", audio: "audios/wayra-viento.ogg" },
-            { id: 3, palabra: "yaku-agua",    audio: "audios/yaku.ogg" },
-            { id: 4, palabra: "miski-azucar", audio: "audios/miski.ogg" }
-        ];
-
-        let apSelectedAudio = null;
-        let apSelectedWord = null;
-        let apMatchedPairs = new Set();
-
+        // --- SISTEMA NIVEL 4: PARES CON AUDIO ---
         function barajarArray(array) {
             const copia = [...array];
             for (let i = copia.length - 1; i > 0; i--) {
@@ -963,10 +586,10 @@
             const contenedor = document.getElementById('pairs-audio-pares');
             contenedor.innerHTML = "";
 
-            const ordenAudios = barajarArray(bancoParesAudio);
-            const ordenPalabras = barajarArray(bancoParesAudio);
+            const ordenAudios = barajarArray(nivel4Data);
+            const ordenPalabras = barajarArray(nivel4Data);
 
-            for (let i = 0; i < bancoParesAudio.length; i++) {
+            for (let i = 0; i < nivel4Data.length; i++) {
                 const itemAudio = ordenAudios[i];
                 const itemPalabra = ordenPalabras[i];
 
@@ -994,7 +617,6 @@
                 contenedor.appendChild(row);
             }
 
-            // barras de la forma de onda (decorativas)
             contenedor.querySelectorAll('.ap-waveform').forEach(wf => {
                 for (let i = 0; i < 14; i++) {
                     const h = 6 + Math.round(Math.random() * 16);
@@ -1053,9 +675,9 @@
                 });
                 apMatchedPairs.add(audioTile.dataset.pair);
                 document.getElementById('progress-fill-audio-pares').style.width =
-                    Math.round((apMatchedPairs.size / bancoParesAudio.length) * 100) + "%";
+                    Math.round((apMatchedPairs.size / nivel4Data.length) * 100) + "%";
 
-                const listo = apMatchedPairs.size === bancoParesAudio.length;
+                const listo = apMatchedPairs.size === nivel4Data.length;
                 const checkBtn = document.getElementById('check-btn-audio-pares');
                 checkBtn.disabled = !listo;
                 checkBtn.classList.toggle('ap-active', listo);
@@ -1075,15 +697,9 @@
             apSelectedWord = null;
         }
 
-
         // --- PANTALLA FINAL GLOBAL ---
         function mostrarPantallaFinal(gano) {
-            document.getElementById('pantalla-frases').classList.add('hidden');
-            document.getElementById('pantalla-pares').classList.add('hidden');
-            document.getElementById('pantalla-audio-simple').classList.add('hidden');
-            document.getElementById('pantalla-audio-avanzado').classList.add('hidden');
-            document.getElementById('pantalla-audio-pares').classList.add('hidden');
-            
+            ocultarTodasLasPantallas();
             document.getElementById('body-app').className = "bg-white font-sans text-gray-800 flex flex-col min-h-screen";
             const finalContainer = document.getElementById('pantalla-final');
             finalContainer.classList.remove('hidden');
@@ -1092,8 +708,8 @@
                 finalContainer.innerHTML = `
                     <div class="text-center p-6 max-w-sm mx-auto">
                         <span class="text-6xl">🏆</span>
-                        <h1 class="text-3xl font-bold text-green-500 my-4">¡Lección Completada!</h1>
-                        <p class="text-gray-600 mb-6">Has superado con éxito las 4 fases de aprendizaje de hoy.</p>
+                        <h1 class="text-3xl font-bold text-green-500 my-4">¡Curso Completado!</h1>
+                        <p class="text-gray-600 mb-6">Has completado los 4 niveles con éxito.</p>
                         <button onclick="mostrarMapa()" class="btn-duo bg-green-500 text-white font-bold py-3 px-6 rounded-xl uppercase w-full cursor-pointer">Volver al mapa</button>
                     </div>`;
             } else {
@@ -1101,7 +717,7 @@
                     <div class="text-center p-6 max-w-sm mx-auto">
                         <span class="text-6xl">😢</span>
                         <h1 class="text-3xl font-bold text-red-500 my-4">Te quedaste sin vidas</h1>
-                        <p class="text-gray-600 mb-6">¡No te rindas! Inténtalo de nuevo para dominar la lección.</p>
+                        <p class="text-gray-600 mb-6">¡No te rindas! Inténtalo de nuevo.</p>
                         <button onclick="vidas = 3; mostrarMapa();" class="btn-duo bg-blue-500 text-white font-bold py-3 px-6 rounded-xl uppercase w-full cursor-pointer" style="box-shadow: 0 4px 0 #1d4ed8">Reintentar</button>
                     </div>`;
             }
