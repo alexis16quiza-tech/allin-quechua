@@ -99,7 +99,6 @@
         .ap-check-btn.ap-active{ background:var(--ap-accent); color:#062033; cursor:pointer; }
         .ap-check-btn.ap-success{ background:var(--ap-card-correct); color:#062033; }
     </style>
-<link rel="manifest" href="manifest.json">
 </head>
 <body id="body-app" class="bg-white font-sans text-gray-800 flex flex-col min-h-screen transition-colors duration-300">
 
@@ -354,8 +353,29 @@
         const ejercicios = [
             { pregunta: "Hola, ¿cómo estás?", opciones: ["allinllachu, imaynallam?", "rimaykullayki", "riqsikuyki"], correcta: "allinllachu, imaynallam?" }
             ,{ pregunta: "Gracias por tu ayuda.", opciones: ["sulpayki", "sulpayki kachun", "añayki"], correcta: "sulpayki kachun" },
-               { pregunta: "buenos dias ", opciones: ["rimaykullayki", "sulpayki kachun", "añayki"], correcta: "rimaykullayki" }
-                  
+               { pregunta: "buenos dias ", opciones: ["rimaykullayki", "sulpayki kachun", "añayki"], correcta: "rimaykullayki" },
+
+            // --- Números del 1 al 10 (2 preguntas por número) ---
+            { pregunta: "¿Cómo se dice el número 1 en quechua?", opciones: ["huk", "kimsa", "iskay"], correcta: "huk" },
+            { pregunta: "¿Qué número es 'huk' en quechua?", opciones: ["5", "10", "1"], correcta: "1" },
+            { pregunta: "¿Cómo se dice el número 2 en quechua?", opciones: ["iskay", "chunka", "kimsa"], correcta: "iskay" },
+            { pregunta: "¿Qué número es 'iskay' en quechua?", opciones: ["1", "10", "2"], correcta: "2" },
+            { pregunta: "¿Cómo se dice el número 3 en quechua?", opciones: ["pichqa", "kimsa", "huk"], correcta: "kimsa" },
+            { pregunta: "¿Qué número es 'kimsa' en quechua?", opciones: ["8", "10", "3"], correcta: "3" },
+            { pregunta: "¿Cómo se dice el número 4 en quechua?", opciones: ["huk", "suqta", "tawa"], correcta: "tawa" },
+            { pregunta: "¿Qué número es 'tawa' en quechua?", opciones: ["7", "6", "4"], correcta: "4" },
+            { pregunta: "¿Cómo se dice el número 5 en quechua?", opciones: ["iskay", "qanchis", "pichqa"], correcta: "pichqa" },
+            { pregunta: "¿Qué número es 'pichqa' en quechua?", opciones: ["5", "7", "2"], correcta: "5" },
+            { pregunta: "¿Cómo se dice el número 6 en quechua?", opciones: ["huk", "suqta", "isqun"], correcta: "suqta" },
+            { pregunta: "¿Qué número es 'suqta' en quechua?", opciones: ["6", "8", "2"], correcta: "6" },
+            { pregunta: "¿Cómo se dice el número 7 en quechua?", opciones: ["suqta", "qanchis", "tawa"], correcta: "qanchis" },
+            { pregunta: "¿Qué número es 'qanchis' en quechua?", opciones: ["4", "7", "1"], correcta: "7" },
+            { pregunta: "¿Cómo se dice el número 8 en quechua?", opciones: ["pusaq", "iskay", "tawa"], correcta: "pusaq" },
+            { pregunta: "¿Qué número es 'pusaq' en quechua?", opciones: ["6", "9", "8"], correcta: "8" },
+            { pregunta: "¿Cómo se dice el número 9 en quechua?", opciones: ["isqun", "suqta", "tawa"], correcta: "isqun" },
+            { pregunta: "¿Qué número es 'isqun' en quechua?", opciones: ["2", "9", "3"], correcta: "9" },
+            { pregunta: "¿Cómo se dice el número 10 en quechua?", opciones: ["chunka", "pusaq", "kimsa"], correcta: "chunka" },
+            { pregunta: "¿Qué número es 'chunka' en quechua?", opciones: ["10", "9", "4"], correcta: "10" }
         ];
 
         // Nivel 2: Pares
@@ -367,18 +387,18 @@
         ];
 
         // BANCO NIVEL 3: Un solo botón de audio, se elige una palabra única
-       const bancoAudioSimple = [
-            { 
-                audioUrl: "audios/allinlla chachaykamuy.ogg", 
-                opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
-                correcta: "bienvenido"
-            },
-            { 
-                audioUrl: "audios/miski.ogg", 
-                opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
-                correcta: "azúcar"
-            }
-        ];
+        const bancoAudioSimple = [
+    { 
+        audioUrl: "c:\\Users\\User\\Downloads\\allinlla chachaykamuy.ogg", 
+        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
+        correcta: "bienvenido"
+    },
+    { 
+        audioUrl: "c:\\Users\\User\\Downloads\\miski.ogg" , 
+        opciones: ["agua", "azúcar", "bienvenido", "gracias"], 
+        correcta: "azúcar"
+    }
+];
 
 
         // BANCO NIVEL 4: Doble botón (Tortuga), se tocan palabras en orden para construir la frase completa
@@ -923,6 +943,15 @@
         let apSelectedWord = null;
         let apMatchedPairs = new Set();
 
+        function barajarArray(array) {
+            const copia = [...array];
+            for (let i = copia.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copia[i], copia[j]] = [copia[j], copia[i]];
+            }
+            return copia;
+        }
+
         function inicializarParesAudio() {
             apSelectedAudio = null;
             apSelectedWord = null;
@@ -934,30 +963,36 @@
             const contenedor = document.getElementById('pairs-audio-pares');
             contenedor.innerHTML = "";
 
-            bancoParesAudio.forEach(item => {
+            const ordenAudios = barajarArray(bancoParesAudio);
+            const ordenPalabras = barajarArray(bancoParesAudio);
+
+            for (let i = 0; i < bancoParesAudio.length; i++) {
+                const itemAudio = ordenAudios[i];
+                const itemPalabra = ordenPalabras[i];
+
                 const row = document.createElement('div');
                 row.className = "ap-row";
 
                 const audioTile = document.createElement('div');
                 audioTile.className = "ap-tile ap-audio-tile";
-                audioTile.dataset.pair = item.id;
+                audioTile.dataset.pair = itemAudio.id;
                 audioTile.dataset.type = "audio";
                 audioTile.innerHTML = `
                     <span class="ap-play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
                     <span class="ap-waveform"></span>
-                    <audio src="${item.audio}" preload="none"></audio>
+                    <audio src="${itemAudio.audio}" preload="none"></audio>
                 `;
 
                 const wordTile = document.createElement('div');
                 wordTile.className = "ap-tile ap-word-tile";
-                wordTile.dataset.pair = item.id;
+                wordTile.dataset.pair = itemPalabra.id;
                 wordTile.dataset.type = "word";
-                wordTile.textContent = item.palabra;
+                wordTile.textContent = itemPalabra.palabra;
 
                 row.appendChild(audioTile);
                 row.appendChild(wordTile);
                 contenedor.appendChild(row);
-            });
+            }
 
             // barras de la forma de onda (decorativas)
             contenedor.querySelectorAll('.ap-waveform').forEach(wf => {
